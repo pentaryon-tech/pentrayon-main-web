@@ -22,8 +22,10 @@ const config = {
   sessionSecret: process.env.SESSION_SECRET || 'tetrasync-default-secure-secret-key-2026',
   recipientEmail: process.env.RECIPIENT_EMAIL || 'ideathinigirs@gmail.com',
 
-  // Database location strictly isolated in data/ folder outside web root
-  dbPath: path.resolve(__dirname, '../data/tetrasync.db'),
+  // Database location strictly isolated in data/ folder outside web root, or /tmp on Vercel
+  dbPath: process.env.VERCEL
+    ? path.join('/tmp', 'tetrasync.db')
+    : path.resolve(__dirname, '../data/tetrasync.db'),
   // Static files directory: works in root layout or nested inside website
   staticDir: fs.existsSync(path.resolve(__dirname, '../website/index.html'))
     ? path.resolve(__dirname, '../website')
