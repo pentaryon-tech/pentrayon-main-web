@@ -1,0 +1,1218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="dark">
+<meta name="theme-color" content="#090C10">
+<title>TetraSync Technologies — Synchronizing Silicon &amp; Code</title>
+<meta name="description" content="TetraSync Technologies builds electronic hardware and resilient software as one system. Home of AERO One, an autonomous personal aerial robot.">
+
+<link rel="icon" type="image/svg+xml" href="assets/icon.svg">
+<link rel="icon" type="image/png" sizes="32x32" href="assets/favicon.png">
+<link rel="apple-touch-icon" sizes="180x180" href="assets/apple-touch-icon.png">
+<link rel="manifest" href="site.webmanifest">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,300..800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+<script src="https://cdn.tailwindcss.com/3.4.17"></script>
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        colors: {
+          obsidian: '#090C10', panel: '#0E131F', raised: '#161D2B',
+          sig: '#00D2FF', cobalt: '#3B82F6', ok: '#10B981', warn: '#F5B544',
+          ink: '#E6EDF6', mute: '#9AA7BB', dim: '#6B788D'
+        },
+        fontFamily: {
+          sans: ['"Bricolage Grotesque"', 'ui-sans-serif', 'system-ui', '-apple-system', 'Segoe UI', 'sans-serif'],
+          mono: ['"JetBrains Mono"', 'ui-monospace', 'SFMono-Regular', 'Menlo', 'Consolas', 'monospace']
+        }
+      }
+    }
+  };
+</script>
+<script src="https://cdn.jsdelivr.net/npm/lucide@0.469.0/dist/umd/lucide.min.js"></script>
+
+<style>
+  :root {
+    --bg: #090C10; --panel: #0E131F; --raised: #161D2B;
+    --sig: #00D2FF; --cobalt: #3B82F6; --ok: #10B981; --warn: #F5B544;
+    --ink: #E6EDF6; --mute: #9AA7BB; --dim: #6B788D;
+    --line: rgba(148, 170, 200, .14); --line-sig: rgba(0, 210, 255, .22);
+    color-scheme: dark;
+    box-sizing: border-box;
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  html {
+    scroll-behavior: smooth;
+    scroll-padding-top: calc(env(safe-area-inset-top, 0px) + 76px);
+    background: var(--bg);
+    -webkit-text-size-adjust: 100%;
+  }
+  body {
+    background: var(--bg); color: var(--ink);
+    -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale;
+    overflow-x: hidden; font-optical-sizing: auto;
+  }
+  * { -webkit-tap-highlight-color: transparent; }
+  [hidden] { display: none !important; }
+  ::selection { background: rgba(0, 210, 255, .28); color: #fff; }
+  :focus-visible { outline: 2px solid var(--sig); outline-offset: 3px; border-radius: 6px; }
+  .mono { font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+
+  .skip { position: absolute; left: 12px; top: -64px; z-index: 100; background: var(--sig); color: #021019; padding: 10px 14px; border-radius: 8px; font-weight: 600; transition: top .2s; }
+  .skip:focus { top: calc(env(safe-area-inset-top, 0px) + 10px); }
+
+  /* Background */
+  #circuit { position: fixed; inset: 0; width: 100vw; height: 100vh; max-width: 100vw; max-height: 100vh; z-index: 0; pointer-events: none; overflow: hidden; }
+  .veil { position: fixed; inset: 0; z-index: 1; pointer-events: none;
+    background: radial-gradient(120% 90% at 50% 0%, rgba(9,12,16,0) 0%, rgba(9,12,16,.55) 70%, rgba(9,12,16,.88) 100%); }
+  main, footer { position: relative; z-index: 2; }
+
+  /* Layout helpers */
+  .wrap { max-width: 80rem; margin: 0 auto; padding: 0 1.25rem; }
+  @media (min-width: 640px) { .wrap { padding: 0 2rem; } }
+  .section { padding: 88px 0; }
+  @media (min-width: 1024px) { .section { padding: 128px 0; } }
+  .band { background: linear-gradient(180deg, rgba(14,19,31,0), rgba(14,19,31,.7) 10%, rgba(14,19,31,.7) 90%, rgba(14,19,31,0)); }
+  .h2 { font-size: clamp(2rem, 4.2vw, 3.25rem); line-height: 1.06; letter-spacing: -.025em; font-weight: 600; max-width: 22ch; }
+  .lead { font-size: clamp(1.05rem, 1.4vw, 1.2rem); color: var(--mute); line-height: 1.65; max-width: 60ch; }
+  .line { border-color: var(--line); }
+
+  /* Brand logo fail-safe constraints */
+  .logo-img, img[src*="logo_emblem"] {
+    width: 36px !important;
+    height: 36px !important;
+    max-width: 36px !important;
+    max-height: 36px !important;
+    object-fit: contain !important;
+    display: block !important;
+    flex-shrink: 0 !important;
+  }
+  footer .logo-img, footer img[src*="logo_emblem"] {
+    width: 32px !important;
+    height: 32px !important;
+    max-width: 32px !important;
+    max-height: 32px !important;
+  }
+  /* Fallback layout rules so header and nav never break even if CDN is delayed */
+  header.nav {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 50;
+    background: rgba(9, 12, 16, 0.88);
+    -webkit-backdrop-filter: blur(14px);
+    backdrop-filter: blur(14px);
+  }
+  header.nav > .wrap {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 64px;
+  }
+  header.nav a[href="#top"] {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    text-decoration: none;
+  }
+  header.nav nav {
+    display: none;
+    align-items: center;
+    gap: 4px;
+  }
+  @media (min-width: 1024px) {
+    header.nav nav {
+      display: flex !important;
+    }
+    .lg\:hidden {
+      display: none !important;
+    }
+  }
+
+  /* Nav */
+  .nav { padding-top: env(safe-area-inset-top, 0px); border-bottom: 1px solid var(--line); transition: background .25s, border-color .25s; }
+  .nav.scrolled { background: rgba(9,12,16,.92); -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px); border-bottom-color: var(--line); }
+  .nav-link { padding: 8px 12px; border-radius: 8px; font-size: 14px; color: var(--mute); text-decoration: none !important; transition: color .15s, background .15s; }
+  .nav-link:hover { color: var(--ink); background: rgba(255,255,255,.04); }
+  .nav-link[aria-current="true"] { color: var(--sig); }
+  .drawer { border-top: 1px solid var(--line); background: rgba(9,12,16,.97); -webkit-backdrop-filter: blur(16px); backdrop-filter: blur(16px); animation: drawerIn .25s ease-out; }
+  .drawer a:not(.btn) { display: flex; align-items: center; min-height: 48px; padding: 0 4px; border-bottom: 1px solid var(--line); font-size: 17px; }
+  @keyframes drawerIn { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: none; } }
+  .icon-btn { display: inline-grid; place-items: center; width: 44px; height: 44px; border-radius: 10px; border: 1px solid var(--line); color: var(--ink); }
+  .icon-btn svg { width: 20px; height: 20px; }
+
+  /* Buttons */
+  .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 46px; padding: 0 20px; border-radius: 10px; font-weight: 600; font-size: 15px; cursor: pointer; white-space: nowrap; transition: transform .15s, box-shadow .2s, background .2s, border-color .2s; }
+  .btn-primary { background: var(--sig); color: #021019; }
+  .btn-primary:hover { box-shadow: 0 0 0 1px rgba(0,210,255,.6), 0 12px 40px -10px rgba(0,210,255,.6); transform: translateY(-1px); }
+  .btn-ghost { border: 1px solid var(--line); color: var(--ink); background: rgba(255,255,255,.02); }
+  .btn-ghost:hover { border-color: var(--line-sig); background: rgba(0,210,255,.06); }
+  .btn[disabled] { opacity: .75; cursor: progress; transform: none; box-shadow: none; }
+  .btn svg { width: 17px; height: 17px; }
+  .spin { width: 16px; height: 16px; border-radius: 50%; border: 2px solid rgba(2,16,25,.25); border-top-color: #021019; animation: spin .7s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* Cards, chips */
+  .glow { position: relative; background: linear-gradient(180deg, rgba(22,29,43,.74), rgba(14,19,31,.84)); border: 1px solid var(--line-sig); border-radius: 16px; box-shadow: 0 30px 60px -34px rgba(0,0,0,.85); transition: border-color .25s; }
+  .glow::before { content: ""; position: absolute; inset: 0; border-radius: inherit; pointer-events: none; opacity: 0; transition: opacity .25s; background: radial-gradient(420px circle at var(--mx, 50%) var(--my, 0%), rgba(0,210,255,.10), transparent 60%); }
+  .glow:hover { border-color: rgba(0,210,255,.4); }
+  .glow:hover::before { opacity: 1; }
+  .chip { display: inline-flex; align-items: center; gap: 6px; padding: 4px 9px; border-radius: 6px; border: 1px solid var(--line); background: rgba(255,255,255,.03); font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 12px; line-height: 1.4; color: var(--mute); }
+  .chip-sig { border-color: var(--line-sig); background: rgba(0,210,255,.06); color: #9BE9FF; }
+  .dot { display: inline-block; width: 8px; height: 8px; border-radius: 99px; background: var(--ok); box-shadow: 0 0 0 3px rgba(16,185,129,.18); flex: none; }
+  .dot.warn { background: var(--warn); box-shadow: 0 0 0 3px rgba(245,181,68,.18); }
+  .mono-tile { display: grid; place-items: center; flex: none; width: 52px; height: 52px; border-radius: 12px; font-family: 'JetBrains Mono', monospace; font-weight: 600; color: var(--sig); background: rgba(0,210,255,.07); border: 1px solid var(--line-sig); }
+  .mono-tile svg { width: 22px; height: 22px; }
+  .mono-tile.sm { width: 42px; height: 42px; border-radius: 10px; }
+  .mono-tile.ok { color: var(--ok); background: rgba(16,185,129,.08); border-color: rgba(16,185,129,.35); }
+  .note { display: flex; align-items: flex-start; gap: 10px; padding: 12px 14px; border-radius: 10px; border: 1px dashed var(--line-sig); background: rgba(0,210,255,.04); font-size: 14px; color: #BFEFFF; }
+  .note svg { width: 17px; height: 17px; flex: none; margin-top: 2px; color: var(--sig); }
+
+  /* Hero headline: single orchestrated "lock" moment */
+  .lock-line { display: block; will-change: transform, opacity; }
+  .lock-a { animation: lockA 1.1s cubic-bezier(.2,.8,.2,1) both; }
+  .lock-b { animation: lockB 1.1s cubic-bezier(.2,.8,.2,1) .12s both; }
+  @keyframes lockA { 0% { transform: translateX(-34px); opacity: 0; filter: blur(8px); text-shadow: -7px 0 rgba(0,210,255,.75), 7px 0 rgba(59,130,246,.75); } 55% { opacity: 1; filter: blur(0); } 100% { transform: none; opacity: 1; filter: none; text-shadow: none; } }
+  @keyframes lockB { 0% { transform: translateX(34px); opacity: 0; filter: blur(8px); text-shadow: 7px 0 rgba(0,210,255,.75), -7px 0 rgba(59,130,246,.75); } 55% { opacity: 1; filter: blur(0); } 100% { transform: none; opacity: 1; filter: none; text-shadow: none; } }
+  .lock-bar { height: 2px; width: 100%; max-width: 360px; background: linear-gradient(90deg, var(--sig), rgba(0,210,255,0)); transform-origin: left; animation: barIn .9s ease-out 1s both; }
+  @keyframes barIn { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+
+  /* Sync widget */
+  .node { cursor: pointer; }
+  .node rect { fill: #0E131F; stroke: rgba(0,210,255,.4); stroke-width: 1.5; transition: fill .2s, stroke .2s; }
+  .node:hover rect, .node.active rect { stroke: #00D2FF; fill: rgba(0,210,255,.14); }
+  .node:focus-visible { outline: none; }
+  .node:focus-visible rect { stroke: #fff; stroke-width: 2.5; }
+  .svg-mono { font: 500 14px 'JetBrains Mono', monospace; fill: #9BE9FF; }
+  .svg-label { font: 500 15px 'Bricolage Grotesque', sans-serif; fill: #9AA7BB; }
+  .packet { fill: #00D2FF; filter: drop-shadow(0 0 5px #00D2FF); }
+  .hub-ring { transform-origin: 220px 220px; animation: spin 26s linear infinite; }
+  #hub { transition: fill .25s; }
+  #hub.pulse { fill: rgba(0,210,255,.3); }
+
+  /* Mini panels / controls */
+  .mini { border: 1px solid var(--line); border-radius: 12px; padding: 12px; background: rgba(6,9,14,.55); }
+  .mini-title { font-size: 12px; color: var(--mute); margin-bottom: 8px; }
+  .vis-title { font-size: 13px; color: var(--mute); }
+  .flash { animation: flash 1.3s ease-out 1; }
+  @keyframes flash { 0% { box-shadow: 0 0 0 2px rgba(0,210,255,.85), 0 0 34px rgba(0,210,255,.45); } 100% { box-shadow: 0 0 0 0 rgba(0,210,255,0); } }
+  .seg { display: inline-flex; padding: 3px; border-radius: 10px; border: 1px solid var(--line); background: rgba(0,0,0,.28); }
+  .seg-btn { padding: 6px 14px; min-height: 34px; border-radius: 7px; font-size: 13px; font-weight: 500; color: var(--mute); transition: background .2s, color .2s; }
+  .seg-btn.is-on { background: rgba(0,210,255,.14); color: #BFF1FF; box-shadow: inset 0 0 0 1px rgba(0,210,255,.35); }
+  .bars { display: flex; gap: 8px; align-items: flex-end; height: 56px; }
+  .bar { flex: 1; height: 100%; display: flex; align-items: flex-end; border-radius: 4px; background: rgba(255,255,255,.03); }
+  .bar .fill { display: block; width: 100%; height: 50%; border-radius: 4px; background: linear-gradient(180deg, var(--sig), var(--cobalt)); transition: height .12s linear; }
+  .bar-labels { display: flex; gap: 8px; margin-top: 6px; }
+  .bar-labels span { flex: 1; text-align: center; font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--dim); }
+  .stat-row { display: flex; justify-content: space-between; gap: 8px; font-size: 13px; padding: 5px 0; border-bottom: 1px solid var(--line); }
+  .stat-row:last-child { border-bottom: 0; }
+  .stat-row dt { color: var(--mute); }
+  .stat-row dd { font-family: 'JetBrains Mono', monospace; color: var(--ink); text-align: right; }
+
+  .spec { display: flex; gap: 14px; width: 100%; text-align: left; padding: 14px; border-radius: 12px; border: 1px solid var(--line); background: rgba(14,19,31,.6); transition: border-color .2s, background .2s; }
+  .spec:hover { border-color: var(--line-sig); }
+  .spec[aria-pressed="true"] { border-color: var(--sig); background: rgba(0,210,255,.07); }
+  .spec svg { width: 20px; height: 20px; color: var(--sig); flex: none; margin-top: 2px; }
+
+  /* Philosophy lanes */
+  .lane { position: relative; height: 54px; border-radius: 10px; background: rgba(6,9,14,.55); border: 1px solid var(--line); }
+  .blk { position: absolute; top: 6px; bottom: 6px; left: var(--l, 0%); width: 20%; display: flex; align-items: center; justify-content: center; border-radius: 7px; border: 1px solid; font-family: 'JetBrains Mono', monospace; font-size: 11px; white-space: nowrap; overflow: hidden; transition: left .8s cubic-bezier(.2,.8,.2,1), border-color .4s, background .4s, color .4s; }
+  .blk.hw { background: rgba(59,130,246,.12); border-color: rgba(59,130,246,.45); color: #BCD3FF; }
+  .blk.sw { background: rgba(245,181,68,.08); border-color: rgba(245,181,68,.4); color: #F8D99A; }
+  .lanes.synced .blk.sw { background: rgba(0,210,255,.1); border-color: rgba(0,210,255,.5); color: #C7F4FF; }
+  @media (max-width: 520px) { .blk { font-size: 10px; } }
+
+
+  /* Leadership */
+  .bus { position: absolute; top: 13px; left: 12.5%; right: 12.5%; height: 1px; background: rgba(0,210,255,.35); display: none; }
+  .bus::after { content: ""; position: absolute; top: -1px; left: 0; height: 3px; width: 90px; background: linear-gradient(90deg, transparent, var(--sig), transparent); animation: busRun 6s linear infinite; }
+  @keyframes busRun { from { left: -90px; } to { left: 100%; } }
+  .leader-node { position: absolute; top: 8px; left: 50%; transform: translateX(-50%); width: 11px; height: 11px; border-radius: 3px; background: var(--bg); border: 1.5px solid var(--sig); display: none; }
+  .leader-node::after { content: ""; position: absolute; left: 50%; top: 100%; width: 1px; height: 22px; background: var(--line-sig); }
+  @media (min-width: 1024px) { .bus, .leader-node { display: block; } }
+  .reveal { display: grid; grid-template-rows: 0fr; transition: grid-template-rows .35s ease; }
+  .reveal[data-open="true"] { grid-template-rows: 1fr; }
+  .reveal > div { overflow: hidden; }
+  button[aria-expanded="true"] .chev { transform: rotate(180deg); }
+  .chev { transition: transform .25s; width: 16px; height: 16px; }
+
+  /* Forms */
+  .label { display: block; font-size: 13px; font-weight: 500; color: #C6D1E1; margin-bottom: 6px; }
+  .input { width: 100%; min-height: 46px; padding: 11px 14px; border-radius: 10px; background: rgba(6,9,14,.72); border: 1px solid var(--line); color: var(--ink); font-size: 15px; transition: border-color .15s, box-shadow .15s; }
+  .input::placeholder { color: #5D6A80; }
+  .input:focus { outline: none; border-color: var(--sig); box-shadow: 0 0 0 3px rgba(0,210,255,.16); }
+  .input:user-invalid { border-color: var(--warn); }
+  select.input { -webkit-appearance: none; appearance: none; padding-right: 40px; background-repeat: no-repeat; background-position: right 14px center;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%239AA7BB' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='m6 9 6 6 6-6'/></svg>"); }
+  select.input option { background: #0E131F; color: var(--ink); }
+  textarea.input { min-height: 124px; resize: vertical; line-height: 1.55; }
+  .check { position: relative; display: block; }
+  .check input { position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; opacity: 0; cursor: pointer; }
+  .check span { display: flex; align-items: center; gap: 10px; min-height: 44px; padding: 8px 12px; border-radius: 10px; border: 1px solid var(--line); background: rgba(6,9,14,.5); font-size: 14px; color: var(--mute); transition: border-color .15s, background .15s, color .15s; }
+  .check span::before { content: ""; width: 15px; height: 15px; flex: none; border-radius: 4px; border: 1px solid #4B5970; }
+  .check input:checked + span { border-color: var(--sig); background: rgba(0,210,255,.08); color: #D8F6FF; }
+  .check input:checked + span::before { background: var(--sig); border-color: var(--sig); box-shadow: inset 0 0 0 2px #0B1018; }
+  .check input:focus-visible + span { outline: 2px solid var(--sig); outline-offset: 2px; }
+  .flash-field { animation: flash 1.3s ease-out 1; }
+  .receipt dl { display: grid; grid-template-columns: max-content 1fr; gap: 8px 18px; font-size: 14px; }
+  .receipt dt { color: var(--dim); }
+  .receipt dd { color: var(--ink); overflow-wrap: anywhere; }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
+  }
+</style>
+</head>
+
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<canvas id="circuit" aria-hidden="true"></canvas>
+<div class="veil" aria-hidden="true"></div>
+
+<!-- ========== NAV ========== -->
+<header id="nav" class="nav fixed inset-x-0 top-0 z-50">
+  <div class="wrap h-16 flex items-center justify-between gap-4">
+    <a href="#top" class="flex items-center gap-3" aria-label="TetraSync Technologies, home">
+      <img src="assets/logo_emblem_dark.png" alt="TetraSync Official Circuit Monogram Logo" width="36" height="36" class="w-9 h-9 object-contain logo-img" style="width:36px;height:36px;max-width:36px;max-height:36px;object-fit:contain;display:block;flex-shrink:0;">
+      <div class="flex flex-col">
+        <span class="text-[17px] font-bold tracking-wider leading-none">
+          <span class="text-white">TETRA</span><span class="text-sig font-extrabold">SYNC</span>
+        </span>
+        <span class="text-[9px] font-mono tracking-[0.22em] text-mute uppercase mt-0.5">TECHNOLOGIES</span>
+      </div>
+    </a>
+    <nav class="hidden lg:flex items-center gap-1" aria-label="Primary">
+      <a class="nav-link" href="#company">Company</a>
+      <a class="nav-link" href="#products">Products</a>
+      <a class="nav-link" href="#leadership">Leadership</a>
+      <a class="nav-link" href="#careers">Careers</a>
+      <a class="nav-link" href="#enquiry">Enquiry</a>
+    </nav>
+    <div class="flex items-center gap-2">
+      <a href="#enquiry" class="btn btn-primary hidden sm:inline-flex">Start a project</a>
+      <button id="menuBtn" type="button" class="icon-btn lg:hidden" aria-expanded="false" aria-controls="drawer" aria-label="Open menu"><i data-lucide="menu"></i></button>
+    </div>
+  </div>
+  <div id="drawer" class="drawer lg:hidden" hidden>
+    <div class="wrap pb-4">
+      <a href="#company">Company</a>
+      <a href="#products">Products</a>
+      <a href="#leadership">Leadership</a>
+      <a href="#careers">Careers</a>
+      <a href="#enquiry">Enquiry</a>
+      <a href="#enquiry" class="btn btn-primary mt-4 w-full">Start a project</a>
+    </div>
+  </div>
+</header>
+
+<main id="main">
+
+<!-- ========== HERO ========== -->
+<section id="top" class="relative pt-32 pb-20 lg:pt-44 lg:pb-32">
+  <div class="wrap grid lg:grid-cols-12 gap-14 lg:gap-8 items-center">
+    <div class="lg:col-span-7">
+      <h1 class="font-semibold" style="font-size:clamp(2.6rem,6.4vw,5.2rem);line-height:1;letter-spacing:-.035em;">
+        <span class="lock-line lock-a">Synchronizing</span>
+        <span class="lock-line lock-b">Silicon &amp; Code</span>
+      </h1>
+      <div class="lock-bar mt-7" aria-hidden="true"></div>
+      <p class="lead mt-7" style="max-width:34rem">TetraSync designs the boards, firmware, vision models and airframes as a single system, so the hardware and the software it runs never drift apart.</p>
+      <div class="flex flex-wrap gap-3 mt-9">
+        <a href="#products" class="btn btn-primary">Explore Products</a>
+        <a href="#enquiry" class="btn btn-ghost">Start a project</a>
+      </div>
+      <div class="flex flex-wrap gap-2 mt-12" aria-label="Technologies we work with">
+        <span class="chip">ESP32-S3</span><span class="chip">STM32</span><span class="chip">ARM Cortex</span><span class="chip">FreeRTOS</span><span class="chip">ONNX</span><span class="chip">OpenCV</span><span class="chip">MQTT</span>
+      </div>
+    </div>
+
+    <div class="lg:col-span-5">
+      <div class="glow p-5 sm:p-6" id="syncCard">
+        <div class="flex items-center justify-between mb-2">
+          <div class="flex items-center gap-2 mono text-xs text-mute"><span class="dot"></span>sync bus</div>
+          <div class="mono text-xs text-mute" id="syncTick">T+000000</div>
+        </div>
+        <svg id="syncSvg" viewBox="0 0 440 440" class="w-full h-auto block" role="group" aria-label="Sync bus: four nodes linked to a central clock">
+          <path d="M70 70H370V370H70Z" fill="none" stroke="rgba(148,170,200,.16)" stroke-dasharray="3 6"/>
+          <g fill="none" stroke="rgba(0,210,255,.5)" stroke-width="1.5" stroke-linejoin="miter">
+            <path class="sync-path" d="M70 70V220H220"/>
+            <path class="sync-path" d="M370 70H220V220"/>
+            <path class="sync-path" d="M370 370V220H220"/>
+            <path class="sync-path" d="M70 370H220V220"/>
+          </g>
+          <circle class="hub-ring" cx="220" cy="220" r="46" fill="none" stroke="rgba(0,210,255,.3)" stroke-dasharray="2 7"/>
+          <circle id="hub" cx="220" cy="220" r="30" fill="#0E131F" stroke="#00D2FF" stroke-width="1.5"/>
+          <text x="220" y="224.5" text-anchor="middle" class="svg-mono">sync</text>
+
+          <g class="node" data-i="0" tabindex="0" role="button" aria-label="Node 1, strategy. Send a sync pulse">
+            <rect x="42" y="42" width="56" height="56" rx="12"/><text x="70" y="74.5" text-anchor="middle" class="svg-mono">N1</text><text x="42" y="30" class="svg-label">Strategy</text>
+          </g>
+          <g class="node" data-i="1" tabindex="0" role="button" aria-label="Node 2, PCB architecture. Send a sync pulse">
+            <rect x="342" y="42" width="56" height="56" rx="12"/><text x="370" y="74.5" text-anchor="middle" class="svg-mono">N2</text><text x="398" y="30" text-anchor="end" class="svg-label">PCB architecture</text>
+          </g>
+          <g class="node" data-i="2" tabindex="0" role="button" aria-label="Node 3, firmware and AI. Send a sync pulse">
+            <rect x="342" y="342" width="56" height="56" rx="12"/><text x="370" y="374.5" text-anchor="middle" class="svg-mono">N3</text><text x="398" y="420" text-anchor="end" class="svg-label">Firmware &amp; AI</text>
+          </g>
+          <g class="node" data-i="3" tabindex="0" role="button" aria-label="Node 4, delivery. Send a sync pulse">
+            <rect x="42" y="342" width="56" height="56" rx="12"/><text x="70" y="374.5" text-anchor="middle" class="svg-mono">N4</text><text x="42" y="420" class="svg-label">Delivery</text>
+          </g>
+          <g id="packets"></g>
+        </svg>
+        <div class="grid grid-cols-3 gap-3 mt-1">
+          <div class="mini"><p class="mini-title">Nodes locked</p><p class="mono text-lg text-ok">4 / 4</p></div>
+          <div class="mini"><p class="mini-title">Clock skew</p><p class="mono text-lg" id="syncSkew">0.6 µs</p></div>
+          <div class="mini"><p class="mini-title">Bus rate</p><p class="mono text-lg">10 Hz</p></div>
+        </div>
+        <p class="mono text-xs text-mute mt-4" id="syncMsg" aria-live="polite">Illustration. Select a node to send a sync pulse.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ========== COMPANY / PHILOSOPHY ========== -->
+<section id="company" class="section">
+  <div class="wrap grid lg:grid-cols-12 gap-12 lg:gap-16 items-start">
+    <div class="lg:col-span-6">
+      <h2 class="h2">Four founders. One continuous sync.</h2>
+      <div class="glow p-6 sm:p-7 mt-9">
+        <p class="mono text-sm text-mute">tetra·sync <span class="text-dim">/ˈtɛtrə sɪŋk/</span></p>
+        <dl class="mt-5 space-y-4">
+          <div class="grid gap-x-5 gap-y-1 sm:grid-cols-[84px_1fr]"><dt class="mono text-sig">tetra</dt><dd class="text-[17px]">From Greek, meaning <em class="not-italic text-white">four</em>. Four founders, four corner nodes of one system.</dd></div>
+          <div class="grid gap-x-5 gap-y-1 sm:grid-cols-[84px_1fr]"><dt class="mono text-sig">sync</dt><dd class="text-[17px]">Continuous synchronization. Hardware and software kept on the same clock, all the way through the build.</dd></div>
+        </dl>
+      </div>
+    </div>
+
+    <div class="lg:col-span-6">
+      <p class="lead">TetraSync was founded by four technical visionaries to eliminate the barrier between physical electronic hardware and resilient software systems. Boards and code usually ship on separate clocks. We keep one.</p>
+      <div class="glow p-5 sm:p-6 mt-8 lanes" id="lanes">
+        <div class="flex flex-wrap items-center justify-between gap-3 mb-5">
+          <p class="vis-title">Project handoffs</p>
+          <div class="seg" role="group" aria-label="Schedule model">
+            <button type="button" class="seg-btn is-on" data-sync="off" aria-pressed="true">Separate clocks</button>
+            <button type="button" class="seg-btn" data-sync="on" aria-pressed="false">One clock</button>
+          </div>
+        </div>
+        <p class="text-xs text-mute mb-1.5">Hardware</p>
+        <div class="lane" id="laneHw"></div>
+        <p class="text-xs text-mute mt-4 mb-1.5">Software</p>
+        <div class="lane" id="laneSw"></div>
+        <p class="mono text-xs mt-5 text-mute" id="laneMsg" aria-live="polite">Software waits on hardware at every step.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ========== PRODUCTS SHOWCASE ========== -->
+<section id="products" class="section">
+  <div id="aero"></div>
+  <div class="wrap">
+    <div class="flex flex-col md:flex-row md:items-end justify-between gap-4">
+      <div>
+        <span class="mono text-xs text-sig uppercase tracking-[0.22em] font-semibold">Proprietary Platforms</span>
+        <h2 class="h2 mt-2">Products</h2>
+        <p class="mt-3 text-lg text-mute max-w-2xl">Production-grade autonomous hardware and edge intelligence platforms engineered in-house by TetraSync Technologies.</p>
+      </div>
+      <div class="flex items-center gap-2">
+        <span class="chip chip-sig font-mono text-xs"><span class="dot"></span>Flagship Model</span>
+      </div>
+    </div>
+
+    <!-- Flagship Product Card: AERO One -->
+    <article class="glow overflow-hidden mt-10 p-6 sm:p-8 lg:p-10 rounded-2xl border line">
+      <div class="grid lg:grid-cols-12 gap-10 items-center">
+        <!-- Product Media with Image & Badges -->
+        <div class="lg:col-span-6 relative">
+          <div class="relative rounded-xl overflow-hidden border line group">
+            <img src="assets/aero_assistant.jpg" alt="AERO One Autonomous Personal Aerial Robot" class="w-full h-auto object-cover transition-transform duration-500 group-hover:scale-105" style="aspect-ratio:16/10;">
+            <div class="absolute top-4 left-4 flex flex-wrap gap-2">
+              <span class="chip chip-sig backdrop-blur-md bg-black/60 font-mono text-xs"><span class="dot"></span>Edge AI &amp; LiDAR Active</span>
+            </div>
+            <div class="absolute bottom-4 left-4">
+              <span class="chip backdrop-blur-md bg-black/70 border line text-xs font-mono text-ink">MODEL: AERO-01-PRO</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Product Information & Specifications -->
+        <div class="lg:col-span-6 flex flex-col justify-between">
+          <div>
+            <div class="flex flex-wrap items-center justify-between gap-3 mb-3">
+              <span class="chip font-mono text-xs uppercase tracking-wider text-sig border border-sig/30 bg-sig/10">Autonomous Aerial Robotics</span>
+              <span class="inline-flex items-center gap-1.5 text-xs font-mono text-ok">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+                Enterprise Ready
+              </span>
+            </div>
+
+            <h3 class="text-3xl sm:text-4xl font-bold tracking-tight text-white">AERO One</h3>
+            <p class="mt-2 text-sig font-medium text-base sm:text-lg">Hands-Free Following, Smart Sentry Monitoring &amp; Aerial Companion Robotics</p>
+
+            <div class="mt-5 space-y-3 text-sm sm:text-base text-mute leading-relaxed">
+              <p>Meet <strong class="text-white">AERO One</strong>: the next generation of autonomous personal aerial robotics. Designed from the ground up for hands-free following, smart sentry monitoring, and aerial companion robotics, AERO One bridges the gap between commercial camera drones and intelligent edge computing.</p>
+              <p>Unlike traditional drones that rely solely on bulky GPS tracking beacons or smartphone tethering, AERO One uses true computer vision. Its onboard neural engine perceives faces, measures biometric facial embeddings in 128-dimensional space, and dynamically maneuvers its quad-rotor propulsion system to keep you locked at the center of the frame.</p>
+              <p>Whether you're recording action videos hands-free, testing autonomous flight algorithms, or securing your premises with smart intruder identification, AERO One is engineered to deliver unmatched precision, safety, and autonomy.</p>
+            </div>
+          </div>
+
+          <div class="mt-7 pt-6 border-t line flex flex-wrap items-center gap-4">
+            <a href="#enquiry" id="aeroCta" class="btn btn-primary">Enquire on AERO One &rarr;</a>
+            <a href="#consoleSection" class="btn btn-ghost text-sm">Launch Flight Console &darr;</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Core Specs Grid from Before Website -->
+      <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-8 pt-8 border-t line">
+        <div class="p-4 rounded-xl border line bg-[#06090e]/60">
+          <div class="flex items-center gap-2 mb-2 text-sig">
+            <i data-lucide="scan-face" style="width:18px;height:18px"></i>
+            <span class="font-semibold text-sm text-ink">128-D Biometric Vision</span>
+          </div>
+          <p class="text-xs text-mute leading-relaxed">Onboard neural engine perceives faces and measures embeddings in 128-dimensional space.</p>
+        </div>
+
+        <div class="p-4 rounded-xl border line bg-[#06090e]/60">
+          <div class="flex items-center gap-2 mb-2 text-sig">
+            <i data-lucide="crosshair" style="width:18px;height:18px"></i>
+            <span class="font-semibold text-sm text-ink">Dynamic Frame Locking</span>
+          </div>
+          <p class="text-xs text-mute leading-relaxed">Quad-rotor propulsion dynamically maneuvers to keep you locked at the center of the frame.</p>
+        </div>
+
+        <div class="p-4 rounded-xl border line bg-[#06090e]/60">
+          <div class="flex items-center gap-2 mb-2 text-sig">
+            <i data-lucide="radar" style="width:18px;height:18px"></i>
+            <span class="font-semibold text-sm text-ink">Smart Sentry &amp; Security</span>
+          </div>
+          <p class="text-xs text-mute leading-relaxed">Autonomous premises patrol and intruder identification without tethered beacons.</p>
+        </div>
+
+        <div class="p-4 rounded-xl border line bg-[#06090e]/60">
+          <div class="flex items-center gap-2 mb-2 text-sig">
+            <i data-lucide="waypoints" style="width:18px;height:18px"></i>
+            <span class="font-semibold text-sm text-ink">Hands-Free Companion</span>
+          </div>
+          <p class="text-xs text-mute leading-relaxed">Action videography following and real-time autonomous flight algorithm testing.</p>
+        </div>
+      </div>
+    </article>
+
+    <!-- Flight Console Simulation Sub-section -->
+    <div id="consoleSection" class="mt-12 pt-8 border-t line">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+        <div>
+          <span class="mono text-xs text-sig uppercase tracking-wider font-semibold">Interactive Testbed</span>
+          <h3 class="text-xl sm:text-2xl font-bold text-white mt-1">AERO One Flight Console Simulation</h3>
+          <p class="text-sm text-mute mt-1">Live simulation of the onboard 128-D face tracker, closed-loop differential thrust, and sentry intruder radar.</p>
+        </div>
+        <div class="flex items-center gap-2 text-xs mono text-mute">
+          <span class="dot"></span> Telemetry Active
+        </div>
+      </div>
+
+      <div class="grid lg:grid-cols-12 gap-8 items-start">
+        <div class="lg:col-span-5">
+          <p class="text-sm text-mute mb-3">Select a capability to highlight the corresponding avionics subsystem on the console:</p>
+          <div class="grid sm:grid-cols-2 gap-3">
+            <button type="button" class="spec" aria-pressed="false" data-mode="follow" data-panel="vision">
+              <i data-lucide="scan-face"></i>
+              <span><span class="block font-semibold text-ink">128-D Biometric Vision</span><span class="block text-sm text-mute mt-1">Neural facial embeddings</span></span>
+            </button>
+            <button type="button" class="spec" aria-pressed="false" data-mode="follow" data-panel="lock">
+              <i data-lucide="crosshair"></i>
+              <span><span class="block font-semibold text-ink">Dynamic Frame Locking</span><span class="block text-sm text-mute mt-1">Differential motor thrust</span></span>
+            </button>
+            <button type="button" class="spec" aria-pressed="false" data-mode="sentry" data-panel="view">
+              <i data-lucide="radar"></i>
+              <span><span class="block font-semibold text-ink">Smart Sentry Monitoring</span><span class="block text-sm text-mute mt-1">Perimeter intruder defense</span></span>
+            </button>
+            <button type="button" class="spec" aria-pressed="false" data-mode="follow" data-panel="view">
+              <i data-lucide="waypoints"></i>
+              <span><span class="block font-semibold text-ink">Hands-Free Companion</span><span class="block text-sm text-mute mt-1">Autonomous follow algorithms</span></span>
+            </button>
+          </div>
+          <div class="p-4 rounded-xl border line bg-[#06090e]/40 mt-5">
+            <div class="flex items-center gap-2 text-xs font-mono text-sig mb-1">
+              <i data-lucide="cpu" style="width:14px;height:14px"></i>
+              <span>AVIONICS ARCHITECTURE</span>
+            </div>
+            <p class="text-xs text-mute">Edge neural compute runs dual ONNX pipelines (YuNet detector + SFace recognition) with hardware DMA offloading on STM32/ESP32-S3 coprocessor.</p>
+          </div>
+        </div>
+
+        <div class="lg:col-span-7">
+          <div class="glow overflow-hidden" id="dash">
+            <div class="flex flex-wrap items-center justify-between gap-3 px-4 py-3 border-b line">
+              <div class="flex items-center gap-2 mono text-xs text-mute"><span class="dot" id="vStateDot"></span>AERO One flight console <span class="chip">simulation</span></div>
+              <div class="seg" role="group" aria-label="Flight mode">
+                <button type="button" class="seg-btn is-on" data-fmode="follow" aria-pressed="true">Follow</button>
+                <button type="button" class="seg-btn" data-fmode="sentry" aria-pressed="false">Sentry</button>
+              </div>
+            </div>
+            <div class="p-3 sm:p-4">
+              <div class="rounded-xl overflow-hidden border line" data-panel="view">
+                <canvas id="view" class="block w-full" style="aspect-ratio:16/9" role="img" aria-label="Simulated camera view from AERO One. In follow mode the drone keeps a moving person centered; in sentry mode it flags an unknown person inside a perimeter."></canvas>
+              </div>
+              <div class="grid sm:grid-cols-3 gap-3 mt-3">
+                <div class="mini" data-panel="vision">
+                  <p class="mini-title">Face embedding (128-D)</p>
+                  <canvas id="embed" class="block w-full" style="height:56px" aria-hidden="true"></canvas>
+                  <p class="mono text-xs text-mute mt-2" id="vMatch">cos 0.93 · owner</p>
+                </div>
+                <div class="mini" data-panel="lock">
+                  <p class="mini-title">Rotor thrust</p>
+                  <div class="bars" id="thrust"><div class="bar"><span class="fill"></span></div><div class="bar"><span class="fill"></span></div><div class="bar"><span class="fill"></span></div><div class="bar"><span class="fill"></span></div></div>
+                  <div class="bar-labels"><span>M1</span><span>M2</span><span>M3</span><span>M4</span></div>
+                </div>
+                <div class="mini" data-panel="status">
+                  <p class="mini-title">Status</p>
+                  <dl>
+                    <div class="stat-row"><dt>Lock error</dt><dd id="vErr">0.0 px</dd></div>
+                    <div class="stat-row"><dt>Loop</dt><dd id="vLat">31 ms</dd></div>
+                    <div class="stat-row"><dt>State</dt><dd id="vState">Locked</dd></div>
+                  </dl>
+                </div>
+              </div>
+            </div>
+          </div>
+          <p class="text-xs text-dim mt-3">Simulated console for illustration. Not live flight data.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ========== LEADERSHIP ========== -->
+<section id="leadership" class="section">
+  <div class="wrap">
+    <h2 class="h2">The four corner nodes</h2>
+    <p class="lead mt-5">Each founder owns one corner of the system. Open a profile to see what they are responsible for.</p>
+    <div class="relative mt-14">
+      <div class="bus" aria-hidden="true"></div>
+      <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-5 items-start" id="leaders"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ========== CAREERS ========== -->
+<section id="careers" class="section band">
+  <div class="wrap">
+    <h2 class="h2">Build the next aircraft with us</h2>
+    <p class="lead mt-5">Six open positions. Pick one, or send an open application if you build things that have to work in the real world.</p>
+    <div id="roles" class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-12"></div>
+
+    <div class="grid lg:grid-cols-12 gap-10 lg:gap-14 mt-20 items-start" id="apply">
+      <div class="lg:col-span-4">
+        <h3 class="text-3xl font-semibold tracking-tight" style="line-height:1.1">Candidate application</h3>
+        <p class="text-mute mt-4 leading-relaxed" style="max-width:36ch">Tell us what you have built. Links to repos, boards, flight logs and demo videos help us most.</p>
+        <p class="note mt-6"><i data-lucide="shield-check"></i><span>Confidential application delivered directly to founding engineers</span></p>
+      </div>
+      <div class="lg:col-span-8 glow p-5 sm:p-8">
+        <form id="appForm" autocomplete="on">
+          <input type="text" name="_tetra_guard" tabindex="-1" autocomplete="off" style="display:none!important" aria-hidden="true">
+          <div class="grid sm:grid-cols-2 gap-x-5 gap-y-5">
+            <div><label class="label" for="a-name">Full name</label><input class="input" id="a-name" name="name" type="text" autocomplete="name" required placeholder="Your name"></div>
+            <div><label class="label" for="a-email">Email</label><input class="input" id="a-email" name="email" type="email" autocomplete="email" required placeholder="you@example.com"></div>
+            <div><label class="label" for="a-phone">Phone</label><input class="input" id="a-phone" name="phone" type="tel" autocomplete="tel" inputmode="tel" required pattern="[0-9+\(\)\-\s]{7,}" title="Digits, spaces, + ( ) and - only" placeholder="+91 98765 43210"></div>
+            <div><label class="label" for="a-role">Target position</label><select class="input" id="a-role" name="role" required></select></div>
+            <div><label class="label" for="a-exp">Experience level</label>
+              <select class="input" id="a-exp" name="exp" required>
+                <option value="" disabled selected>Select your level</option>
+                <option>Student / intern</option><option>Fresher (0–1 yr)</option><option>Early career (1–3 yrs)</option><option>Mid-level (3–6 yrs)</option><option>Senior (6+ yrs)</option>
+              </select>
+            </div>
+            <div><label class="label" for="a-link">GitHub / portfolio URL</label><input class="input" id="a-link" name="link" type="url" inputmode="url" placeholder="https://github.com/you"></div>
+          </div>
+          <div class="mt-5"><label class="label" for="a-proj">Technical projects</label><textarea class="input" id="a-proj" name="projects" required placeholder="Describe one or two hardware, firmware or vision projects you built, and what you personally did."></textarea></div>
+          <div class="mt-6 flex flex-wrap items-center gap-4">
+            <button type="submit" class="btn btn-primary" id="appBtn">Submit application</button>
+            <span class="text-sm text-dim">All fields except the portfolio link are required.</span>
+          </div>
+        </form>
+        <div id="appReceipt" class="receipt" hidden></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ========== ENQUIRY ========== -->
+<div id="contact" class="scroll-mt-20"></div>
+<section id="enquiry" class="section">
+  <div class="wrap grid lg:grid-cols-12 gap-12 lg:gap-14 items-start">
+    <div class="lg:col-span-5">
+      <h2 class="h2">Start with a technical brief</h2>
+      <p class="lead mt-5">Tell us what you are building. A founder reads every brief and replies with a straight engineering assessment.</p>
+      <ul class="mt-10 space-y-6">
+        <li class="flex gap-4"><span class="mono-tile sm"><i data-lucide="clock"></i></span><div><p class="font-semibold text-lg">24–48h Technical Assessment</p><p class="text-mute mt-1">Feasibility, main risks and a proposed first step.</p></div></li>
+        <li class="flex gap-4"><span class="mono-tile sm"><i data-lucide="shield-check"></i></span><div><p class="font-semibold text-lg">Confidentiality &amp; NDA Supported</p><p class="text-mute mt-1">Unreleased designs are welcome. We sign before you share detail.</p></div></li>
+        <li class="flex gap-4"><span class="mono-tile sm"><i data-lucide="user-round"></i></span><div><p class="font-semibold text-lg">Direct Founder Access</p><p class="text-mute mt-1">No account managers. You talk to the engineers doing the work.</p></div></li>
+      </ul>
+    </div>
+
+    <div class="lg:col-span-7 glow p-5 sm:p-8">
+      <div id="enqCtx" class="flex items-center gap-2 mb-5" hidden>
+        <span class="chip chip-sig"><i data-lucide="radar" style="width:14px;height:14px"></i>Regarding AERO One</span>
+        <button type="button" id="enqCtxClear" class="text-sm text-mute underline underline-offset-4 hover:text-ink">Clear</button>
+      </div>
+      <form id="enqForm" autocomplete="on">
+        <input type="text" name="_tetra_guard" tabindex="-1" autocomplete="off" style="display:none!important" aria-hidden="true">
+        <div class="grid sm:grid-cols-2 gap-x-5 gap-y-5">
+          <div><label class="label" for="e-name">Full name</label><input class="input" id="e-name" name="name" type="text" autocomplete="name" required placeholder="Your name"></div>
+          <div><label class="label" for="e-email">Work email</label><input class="input" id="e-email" name="email" type="email" autocomplete="email" required placeholder="you@company.com"></div>
+          <div><label class="label" for="e-company">Company</label><input class="input" id="e-company" name="company" type="text" autocomplete="organization" required placeholder="Company or organization"></div>
+          <div><label class="label" for="e-phase">Project phase</label>
+            <select class="input" id="e-phase" name="phase" required>
+              <option value="" disabled selected>Select a phase</option>
+              <option>Concept / idea stage</option><option>Feasibility study</option><option>Prototype in progress</option><option>Pre-production / pilot</option><option>Production scale-up</option><option>Existing product needs rework</option>
+            </select>
+          </div>
+        </div>
+        <fieldset class="mt-6">
+          <legend class="label">Engineering disciplines</legend>
+          <div class="grid sm:grid-cols-2 gap-2.5">
+            <label class="check"><input type="checkbox" name="disc" value="Embedded silicon &amp; PCB"><span>Embedded silicon &amp; PCB</span></label>
+            <label class="check"><input type="checkbox" name="disc" value="Firmware &amp; RTOS"><span>Firmware &amp; RTOS</span></label>
+            <label class="check"><input type="checkbox" name="disc" value="Mechatronics &amp; control"><span>Mechatronics &amp; control</span></label>
+            <label class="check"><input type="checkbox" name="disc" value="Edge AI &amp; computer vision"><span>Edge AI &amp; computer vision</span></label>
+            <label class="check"><input type="checkbox" name="disc" value="IoT &amp; telemetry"><span>IoT &amp; telemetry</span></label>
+            <label class="check"><input type="checkbox" name="disc" value="Mechanical &amp; airframe"><span>Mechanical &amp; airframe</span></label>
+          </div>
+        </fieldset>
+        <div class="mt-6"><label class="label" for="e-scope">Requirements &amp; scope</label><textarea class="input" id="e-scope" name="scope" required placeholder="What are you building, what must it do, and what constraints (size, power, cost, timeline) matter most?"></textarea></div>
+        <div class="mt-6 flex flex-col sm:flex-row sm:items-center gap-4">
+          <button type="submit" class="btn btn-primary" id="enqBtn">Dispatch Technical Brief →</button>
+          <p class="note" style="padding:8px 12px"><i data-lucide="shield-check"></i><span>Direct &amp; encrypted transmission to engineering board</span></p>
+        </div>
+      </form>
+      <div id="enqReceipt" class="receipt" hidden></div>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer class="border-t line" style="background:rgba(9,12,16,.9)">
+  <div class="wrap py-12 grid gap-10 md:grid-cols-12">
+    <div class="md:col-span-5">
+      <div class="flex items-center gap-3">
+        <img src="assets/logo_emblem_dark.png" alt="TetraSync Logo" width="32" height="32" class="w-8 h-8 object-contain logo-img" style="width:32px;height:32px;max-width:32px;max-height:32px;object-fit:contain;display:block;flex-shrink:0;">
+        <div class="flex flex-col">
+          <span class="text-lg font-bold tracking-wider leading-none">
+            <span class="text-white">TETRA</span><span class="text-sig">SYNC</span>
+          </span>
+          <span class="text-[9px] font-mono tracking-[0.22em] text-mute uppercase mt-0.5">TECHNOLOGIES</span>
+        </div>
+      </div>
+      <p class="text-mute mt-3">Synchronizing Silicon &amp; Code</p>
+    </div>
+    <nav class="md:col-span-4 grid grid-cols-2 gap-y-2 text-sm text-mute" aria-label="Footer">
+      <a class="hover:text-ink" href="#company">Company</a><a class="hover:text-ink" href="#products">Products</a>
+      <a class="hover:text-ink" href="#leadership">Leadership</a><a class="hover:text-ink" href="#careers">Careers</a>
+      <a class="hover:text-ink" href="#enquiry">Enquiry</a>
+    </nav>
+    <div class="md:col-span-3 text-sm">
+      <p class="text-mute">Ready to build?</p>
+      <a class="btn btn-primary text-xs mt-3 inline-flex items-center gap-2" href="#enquiry">
+        <i data-lucide="send" style="width:13px;height:13px"></i><span>Start a Project</span>
+      </a>
+    </div>
+  </div>
+  <div class="wrap pb-10 flex flex-wrap items-center justify-between gap-4 text-xs text-dim">
+    <span>© 2026 TetraSync Technologies. All rights reserved.</span>
+    <div class="flex gap-4">
+      <a href="terms.html" class="hover:text-ink">Terms &amp; Conditions</a>
+      <a href="privacy.html" class="hover:text-ink">Privacy Policy</a>
+      <a href="/admin" class="hover:text-ink">Executive Portal</a>
+    </div>
+  </div>
+</footer>
+
+<script>
+(function () {
+'use strict';
+
+/* ---------- Config & helpers ---------- */
+// Backend API endpoints for secure form dispatch and server validation
+const API_ENDPOINTS = {
+  application: '/api/applications',
+  enquiry: '/api/enquiry'
+};
+
+const $ = (s, r) => (r || document).querySelector(s);
+const $$ = (s, r) => Array.from((r || document).querySelectorAll(s));
+const NS = 'http://www.w3.org/2000/svg';
+const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+const mod = (n, m) => ((n % m) + m) % m;
+const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+function refreshIcons() { try { if (window.lucide) window.lucide.createIcons(); } catch (e) { /* icons are decorative */ } }
+function mulberry32(a) { return function () { a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+function flash(el, cls) { if (!el) return; el.classList.remove(cls || 'flash'); void el.offsetWidth; el.classList.add(cls || 'flash'); }
+
+/* ---------- Circuit canvas background ---------- */
+(function circuit() {
+  const cv = $('#circuit'); if (!cv) return;
+  const ctx = cv.getContext('2d');
+  const G = 48; let W = 0, H = 0, DPR = 1, layer = null, traces = [], pads = [], pulses = [], last = 0, running = false;
+  const ptr = { x: -9999, y: -9999 };
+
+  function pointAt(tr, d) {
+    let rem = d; const p = tr.pts;
+    for (let i = 0; i < p.length - 1; i++) {
+      const l = tr.seg[i];
+      if (rem <= l) { const k = l ? rem / l : 0; return [p[i][0] + (p[i + 1][0] - p[i][0]) * k, p[i][1] + (p[i + 1][1] - p[i][1]) * k]; }
+      rem -= l;
+    }
+    const e = p[p.length - 1]; return [e[0], e[1]];
+  }
+  function newPulse(init) {
+    const tr = traces[Math.floor(Math.random() * traces.length)];
+    return { tr: tr, d: init ? Math.random() * tr.total : -Math.random() * 140, v: 60 + Math.random() * 90 };
+  }
+  function build() {
+    DPR = Math.min(window.devicePixelRatio || 1, 2);
+    W = window.innerWidth; H = window.innerHeight;
+    cv.width = Math.round(W * DPR); cv.height = Math.round(H * DPR);
+    cv.style.width = W + 'px'; cv.style.height = H + 'px';
+    const cols = Math.ceil(W / G), rows = Math.ceil(H / G);
+    const rng = mulberry32(20260);
+    traces = []; pads = [];
+    const count = Math.round(cols * rows / 9);
+    for (let n = 0; n < count; n++) {
+      let x = Math.floor(rng() * (cols + 1)), y = Math.floor(rng() * (rows + 1)), dir = rng() < .5 ? 0 : 1;
+      const pts = [[x * G, y * G]]; const segs = 2 + Math.floor(rng() * 4);
+      for (let s = 0; s < segs; s++) {
+        const len = (1 + Math.floor(rng() * 6)) * (rng() < .5 ? -1 : 1);
+        if (dir === 0) x = clamp(x + len, 0, cols); else y = clamp(y + len, 0, rows);
+        const lp = pts[pts.length - 1];
+        if (x * G !== lp[0] || y * G !== lp[1]) pts.push([x * G, y * G]);
+        dir ^= 1;
+      }
+      if (pts.length < 2) continue;
+      const seg = []; let total = 0;
+      for (let i = 0; i < pts.length - 1; i++) { const l = Math.abs(pts[i + 1][0] - pts[i][0]) + Math.abs(pts[i + 1][1] - pts[i][1]); seg.push(l); total += l; }
+      traces.push({ pts: pts, seg: seg, total: total });
+      pads.push(pts[0], pts[pts.length - 1]);
+    }
+    layer = document.createElement('canvas'); layer.width = cv.width; layer.height = cv.height;
+    const l = layer.getContext('2d'); l.scale(DPR, DPR);
+    l.lineWidth = 1; l.lineJoin = 'miter'; l.strokeStyle = 'rgba(0,210,255,0.11)';
+    traces.forEach(t => { l.beginPath(); t.pts.forEach((p, i) => i ? l.lineTo(p[0], p[1]) : l.moveTo(p[0], p[1])); l.stroke(); });
+    pads.forEach(p => { l.beginPath(); l.arc(p[0], p[1], 3, 0, 6.2832); l.fillStyle = '#090C10'; l.fill(); l.strokeStyle = 'rgba(0,210,255,0.26)'; l.stroke(); });
+    const pc = clamp(Math.round(traces.length / 6), 5, 14);
+    pulses = []; for (let i = 0; i < pc; i++) pulses.push(newPulse(true));
+  }
+  function draw(now) {
+    const dt = Math.min(.05, (now - last) / 1000 || .016); last = now;
+    ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.clearRect(0, 0, cv.width, cv.height); ctx.drawImage(layer, 0, 0);
+    ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+    for (const p of pads) {
+      const dx = p[0] - ptr.x, dy = p[1] - ptr.y, d2 = dx * dx + dy * dy;
+      if (d2 < 19600) { const k = 1 - Math.sqrt(d2) / 140; ctx.beginPath(); ctx.arc(p[0], p[1], 3 + 3 * k, 0, 6.2832); ctx.fillStyle = 'rgba(0,210,255,' + (0.5 * k).toFixed(3) + ')'; ctx.fill(); }
+    }
+    if (!reduce) {
+      for (const p of pulses) {
+        p.d += p.v * dt;
+        if (p.d > p.tr.total + 40) { Object.assign(p, newPulse(false)); continue; }
+        for (let i = 0; i < 9; i++) {
+          const dd = p.d - i * 5; if (dd < 0 || dd > p.tr.total) continue;
+          const q = pointAt(p.tr, dd);
+          ctx.beginPath(); ctx.arc(q[0], q[1], 2.2 - i * .16, 0, 6.2832); ctx.fillStyle = 'rgba(0,210,255,' + (0.75 - i * .08).toFixed(2) + ')'; ctx.fill();
+        }
+      }
+      requestAnimationFrame(draw);
+    }
+  }
+  build();
+  if (reduce) { draw(performance.now()); } else { requestAnimationFrame(draw); }
+  window.addEventListener('pointermove', e => { ptr.x = e.clientX; ptr.y = e.clientY; if (reduce) draw(performance.now()); }, { passive: true });
+  let rt; window.addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(() => { build(); if (reduce) draw(performance.now()); }, 160); });
+})();
+
+/* ---------- Glow-card pointer light ---------- */
+document.addEventListener('pointermove', e => {
+  const c = e.target.closest && e.target.closest('.glow'); if (!c) return;
+  const r = c.getBoundingClientRect();
+  c.style.setProperty('--mx', (e.clientX - r.left) + 'px'); c.style.setProperty('--my', (e.clientY - r.top) + 'px');
+}, { passive: true });
+
+/* ---------- Nav ---------- */
+(function nav() {
+  const header = $('#nav'), btn = $('#menuBtn'), drawer = $('#drawer');
+  const onScroll = () => header.classList.toggle('scrolled', window.scrollY > 8);
+  onScroll(); window.addEventListener('scroll', onScroll, { passive: true });
+  function setMenu(open) {
+    drawer.hidden = !open; btn.setAttribute('aria-expanded', String(open)); btn.setAttribute('aria-label', open ? 'Close menu' : 'Open menu');
+    btn.innerHTML = '<i data-lucide="' + (open ? 'x' : 'menu') + '"></i>'; refreshIcons();
+  }
+  btn.addEventListener('click', () => setMenu(drawer.hidden));
+  drawer.addEventListener('click', e => { if (e.target.closest('a')) setMenu(false); });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape' && !drawer.hidden) { setMenu(false); btn.focus(); } });
+  window.matchMedia('(min-width:1024px)').addEventListener('change', e => { if (e.matches) setMenu(false); });
+
+  const links = $$('.nav-link'); const ids = links.map(a => a.getAttribute('href').slice(1));
+  if ('IntersectionObserver' in window) {
+    const io = new IntersectionObserver(es => es.forEach(en => {
+      if (en.isIntersecting) links.forEach(a => a.setAttribute('aria-current', String(a.getAttribute('href') === '#' + en.target.id)));
+    }), { rootMargin: '-45% 0px -50% 0px' });
+    ids.forEach(id => { const s = document.getElementById(id); if (s) io.observe(s); });
+  }
+})();
+
+/* ---------- Hero sync bus ---------- */
+(function syncBus() {
+  const svg = $('#syncSvg'); if (!svg) return;
+  const paths = $$('.sync-path', svg), lens = paths.map(p => p.getTotalLength());
+  const g = $('#packets'), hub = $('#hub'), msg = $('#syncMsg'), skew = $('#syncSkew'), tick = $('#syncTick');
+  const names = ['Strategy', 'PCB architecture', 'Firmware & AI', 'Delivery'];
+  const packets = []; let running = false;
+  const ease = t => t < .5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
+
+  function spawn(i, dir, onDone) {
+    const el = document.createElementNS(NS, 'circle'); el.setAttribute('r', '4'); el.setAttribute('class', 'packet'); el.style.opacity = '0';
+    g.appendChild(el); packets.push({ el: el, i: i, dir: dir, t0: performance.now(), dur: 680, onDone: onDone });
+    if (!running) { running = true; requestAnimationFrame(loop); }
+  }
+  function loop(now) {
+    for (let k = packets.length - 1; k >= 0; k--) {
+      const p = packets[k], t = (now - p.t0) / p.dur;
+      if (t >= 1) { p.el.remove(); packets.splice(k, 1); if (p.onDone) p.onDone(); continue; }
+      const q = paths[p.i].getPointAtLength(lens[p.i] * ease(p.dir > 0 ? t : 1 - t));
+      p.el.setAttribute('cx', q.x.toFixed(1)); p.el.setAttribute('cy', q.y.toFixed(1)); p.el.style.opacity = '1';
+    }
+    if (packets.length) requestAnimationFrame(loop); else running = false;
+  }
+  function pulse(i, announce) {
+    const node = $('.node[data-i="' + i + '"]', svg); node.classList.add('active');
+    spawn(i, 1, () => {
+      hub.classList.add('pulse'); setTimeout(() => hub.classList.remove('pulse'), 260);
+      let done = 0;
+      [0, 1, 2, 3].filter(j => j !== i).forEach(j => spawn(j, -1, () => { if (++done === 3) node.classList.remove('active'); }));
+      const s = (0.4 + Math.random() * 0.5).toFixed(1);
+      skew.textContent = s + ' µs';
+      if (announce) msg.textContent = 'N' + (i + 1) + ' (' + names[i] + ') sent a pulse. All 4 nodes re-locked, skew ' + s + ' µs.';
+    });
+  }
+  $$('.node', svg).forEach(n => {
+    const i = +n.dataset.i;
+    n.addEventListener('click', () => pulse(i, true));
+    n.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); pulse(i, true); } });
+  });
+  let t = 0; const pad = v => String(v).padStart(6, '0');
+  if (!reduce) {
+    setInterval(() => { t++; tick.textContent = 'T+' + pad(t); }, 100);
+    setInterval(() => { if (!document.hidden) pulse(Math.floor(Math.random() * 4), false); }, 2600);
+  } else { tick.textContent = 'T+000000'; }
+})();
+
+/* ---------- Philosophy lanes ---------- */
+(function lanes() {
+  const box = $('#lanes'); if (!box) return;
+  const hw = ['Schematic', 'Layout', 'Bring-up', 'Field test'], sw = ['Drivers', 'RTOS', 'Vision', 'OTA update'];
+  const aligned = [0, 26, 52, 78], drift = [9, 34, 58, 80];
+  const hwEl = $('#laneHw'), swEl = $('#laneSw'), msg = $('#laneMsg');
+  hwEl.innerHTML = hw.map((n, i) => '<div class="blk hw" style="--l:' + aligned[i] + '%">' + n + '</div>').join('');
+  swEl.innerHTML = sw.map((n, i) => '<div class="blk sw" style="--l:' + drift[i] + '%">' + n + '</div>').join('');
+  function set(on) {
+    box.classList.toggle('synced', on);
+    $$('.blk.sw', swEl).forEach((b, i) => b.style.setProperty('--l', (on ? aligned[i] : drift[i]) + '%'));
+    $$('[data-sync]', box).forEach(b => { const is = (b.dataset.sync === 'on') === on; b.classList.toggle('is-on', is); b.setAttribute('aria-pressed', String(is)); });
+    msg.textContent = on ? 'Every handoff lands together: hardware and software change as one.' : 'Software waits on hardware at every step.';
+  }
+  $$('[data-sync]', box).forEach(b => b.addEventListener('click', () => set(b.dataset.sync === 'on')));
+})();
+
+/* ---------- AERO One console ---------- */
+(function aero() {
+  const cv = $('#view'); if (!cv) return;
+  const ctx = cv.getContext('2d'), ec = $('#embed'), ectx = ec.getContext('2d');
+  const fills = $$('#thrust .fill'), elErr = $('#vErr'), elLat = $('#vLat'), elState = $('#vState'), elMatch = $('#vMatch'), dot = $('#vStateDot');
+  let mode = 'follow', W = 640, H = 360, DPR = 1, ew = 300, eh = 56, vis = false, raf = 0, last = 0, T = 1.2, domT = 0, embT = 0;
+  const drone = { x: 0, y: 0, vx: 0, vy: 0, ax: 0, ay: 0, ex: 0, ey: 0 };
+  let intruderIn = false;
+  const seeded = seed => { const r = mulberry32(seed), a = []; for (let i = 0; i < 128; i++) a.push(r() * 2 - 1); return a; };
+  const vecOwner = seeded(11), vecUnk = seeded(97);
+  const MONO = "500 11px 'JetBrains Mono', ui-monospace, monospace";
+
+  function size() {
+    DPR = Math.min(window.devicePixelRatio || 1, 2);
+    const r = cv.getBoundingClientRect(); W = Math.max(280, r.width); H = Math.max(158, r.height || W * 9 / 16);
+    cv.width = Math.round(W * DPR); cv.height = Math.round(H * DPR);
+    const e = ec.getBoundingClientRect(); ew = Math.max(100, e.width); eh = Math.max(40, e.height || 56);
+    ec.width = Math.round(ew * DPR); ec.height = Math.round(eh * DPR);
+  }
+  const ownerWorld = t => ({ x: Math.sin(t * .55) * W * .8 + Math.sin(t * 1.3) * W * .1, y: Math.sin(t * .37) * H * .32, s: 1 + .14 * Math.sin(t * .5) });
+
+  function step(dt) {
+    if (mode === 'follow') {
+      const w = ownerWorld(T);
+      drone.ex = w.x - drone.x; drone.ey = w.y - drone.y;
+      drone.ax = 6 * drone.ex - 3.3 * drone.vx; drone.ay = 6 * drone.ey - 3.3 * drone.vy;
+      drone.vx += drone.ax * dt; drone.vy += drone.ay * dt; drone.x += drone.vx * dt; drone.y += drone.vy * dt;
+    } else { drone.ax = drone.ay = 0; drone.vx *= .9; drone.vy *= .9; drone.x += drone.vx * dt; drone.y += drone.vy * dt; }
+  }
+  function person(x, y, s, fill, stroke) {
+    ctx.beginPath(); ctx.ellipse(x, y + 48 * s, 36 * s, 30 * s, 0, Math.PI, Math.PI * 2); ctx.closePath();
+    ctx.fillStyle = fill; ctx.fill(); ctx.strokeStyle = stroke; ctx.lineWidth = 1; ctx.stroke();
+    ctx.beginPath(); ctx.arc(x, y, 16 * s, 0, 6.2832); ctx.fillStyle = fill; ctx.fill(); ctx.stroke();
+  }
+  function brackets(x, y, w, h, col) {
+    const l = Math.min(10, w / 3);
+    ctx.strokeStyle = col; ctx.lineWidth = 1.6; ctx.beginPath();
+    ctx.moveTo(x, y + l); ctx.lineTo(x, y); ctx.lineTo(x + l, y);
+    ctx.moveTo(x + w - l, y); ctx.lineTo(x + w, y); ctx.lineTo(x + w, y + l);
+    ctx.moveTo(x + w, y + h - l); ctx.lineTo(x + w, y + h); ctx.lineTo(x + w - l, y + h);
+    ctx.moveTo(x + l, y + h); ctx.lineTo(x, y + h); ctx.lineTo(x, y + h - l); ctx.stroke();
+  }
+  function tag(x, y, text, col) {
+    ctx.font = MONO; const w = ctx.measureText(text).width + 12;
+    ctx.fillStyle = 'rgba(7,11,18,.85)'; ctx.fillRect(x, y - 15, w, 18);
+    ctx.fillStyle = col; ctx.fillText(text, x + 6, y - 2);
+  }
+  function render() {
+    ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+    ctx.fillStyle = '#070B12'; ctx.fillRect(0, 0, W, H);
+    const gs = 40; ctx.lineWidth = 1;
+    const kx0 = Math.ceil((drone.x - W / 2) / gs), ky0 = Math.ceil((drone.y - H / 2) / gs);
+    for (let k = kx0; ; k++) { const sx = W / 2 + k * gs - drone.x; if (sx > W) break; ctx.strokeStyle = mod(k, 4) === 0 ? 'rgba(148,170,200,.13)' : 'rgba(148,170,200,.06)'; ctx.beginPath(); ctx.moveTo(sx, 0); ctx.lineTo(sx, H); ctx.stroke(); }
+    for (let k = ky0; ; k++) { const sy = H / 2 + k * gs - drone.y; if (sy > H) break; ctx.strokeStyle = mod(k, 4) === 0 ? 'rgba(148,170,200,.13)' : 'rgba(148,170,200,.06)'; ctx.beginPath(); ctx.moveTo(0, sy); ctx.lineTo(W, sy); ctx.stroke(); }
+
+    ctx.font = MONO; ctx.textBaseline = 'alphabetic';
+    if (mode === 'follow') {
+      const w = ownerWorld(T), sx = W / 2 + (w.x - drone.x), sy = H / 2 + (w.y - drone.y) - H * .06, s = w.s * (H / 360);
+      person(sx, sy, s, '#16203A', 'rgba(255,255,255,.16)');
+      // target crosshair at frame centre
+      ctx.strokeStyle = 'rgba(0,210,255,.4)'; ctx.lineWidth = 1; ctx.setLineDash([3, 4]); ctx.beginPath(); ctx.arc(W / 2, H / 2 - H * .06, 30, 0, 6.2832); ctx.stroke(); ctx.setLineDash([]);
+      ctx.beginPath(); ctx.moveTo(W / 2 - 40, H / 2 - H * .06); ctx.lineTo(W / 2 - 22, H / 2 - H * .06); ctx.moveTo(W / 2 + 22, H / 2 - H * .06); ctx.lineTo(W / 2 + 40, H / 2 - H * .06); ctx.moveTo(W / 2, H / 2 - H * .06 - 40); ctx.lineTo(W / 2, H / 2 - H * .06 - 22); ctx.moveTo(W / 2, H / 2 - H * .06 + 22); ctx.lineTo(W / 2, H / 2 - H * .06 + 40); ctx.stroke();
+      const bw = 52 * s, bh = 52 * s; brackets(sx - bw / 2, sy - bh / 2, bw, bh, '#00D2FF');
+      tag(sx - bw / 2, sy - bh / 2 - 4, 'face 0.98', '#9BE9FF');
+      ctx.strokeStyle = 'rgba(59,130,246,.8)'; ctx.lineWidth = 1.2; ctx.beginPath(); ctx.moveTo(W / 2, H / 2 - H * .06); ctx.lineTo(sx, sy); ctx.stroke();
+      intruderIn = false;
+    } else {
+      const px = W * .16, py = H * .34, pw = W * .68, ph = H * .58;
+      ctx.fillStyle = 'rgba(59,130,246,.06)'; ctx.fillRect(px, py, pw, ph);
+      ctx.strokeStyle = 'rgba(59,130,246,.85)'; ctx.lineWidth = 1.4; ctx.setLineDash([7, 5]); ctx.strokeRect(px, py, pw, ph); ctx.setLineDash([]);
+      ctx.fillStyle = 'rgba(147,181,255,.9)'; ctx.font = MONO; ctx.fillText('perimeter', px + 8, py + 16);
+      const s = H / 360;
+      const ox = W * (.30 + .07 * Math.sin(T * .5)), oy = H * (.62 + .04 * Math.sin(T * .4));
+      const ix = W * (.5 + .52 * Math.sin(T * .28)), iy = H * (.58 + .05 * Math.sin(T * .6));
+      intruderIn = ix > px && ix < px + pw;
+      person(ox, oy, .95 * s, '#16203A', 'rgba(255,255,255,.16)');
+      brackets(ox - 25 * s, oy - 25 * s, 50 * s, 50 * s, '#00D2FF'); tag(ox - 25 * s, oy - 29 * s, 'owner 0.93', '#9BE9FF');
+      person(ix, iy, .88 * s, '#2A2030', 'rgba(255,255,255,.16)');
+      const c = intruderIn ? '#F5B544' : 'rgba(230,237,246,.55)';
+      brackets(ix - 24 * s, iy - 24 * s, 48 * s, 48 * s, c); tag(ix - 24 * s, iy - 28 * s, 'unknown 0.31', intruderIn ? '#F5B544' : '#9AA7BB');
+      if (intruderIn) {
+        const label = 'intruder in zone'; ctx.font = "600 12px 'JetBrains Mono', ui-monospace, monospace"; const tw = ctx.measureText(label).width + 24;
+        ctx.fillStyle = 'rgba(245,181,68,.16)'; ctx.fillRect(W / 2 - tw / 2, H - 38, tw, 26); ctx.strokeStyle = 'rgba(245,181,68,.7)'; ctx.lineWidth = 1; ctx.strokeRect(W / 2 - tw / 2, H - 38, tw, 26);
+        ctx.fillStyle = '#F5B544'; ctx.fillText(label, W / 2 - tw / 2 + 12, H - 20);
+      }
+    }
+    // HUD
+    ctx.font = MONO; ctx.fillStyle = 'rgba(230,237,246,.8)';
+    ctx.fillText(mode === 'follow' ? 'follow · subject locked' : 'sentry · perimeter armed', 12, 20);
+    ctx.textAlign = 'right'; ctx.fillText('cam 1080p30', W - 12, 20); ctx.textAlign = 'left';
+    ctx.strokeStyle = 'rgba(230,237,246,.18)'; ctx.lineWidth = 1; ctx.strokeRect(.5, .5, W - 1, H - 1);
+  }
+  function drawEmbed(now) {
+    ectx.setTransform(DPR, 0, 0, DPR, 0, 0); ectx.clearRect(0, 0, ew, eh);
+    const unk = mode === 'sentry' && intruderIn, vec = unk ? vecUnk : vecOwner, col = unk ? '245,181,68' : '0,210,255', bw = ew / 128;
+    for (let i = 0; i < 128; i++) {
+      const v = vec[i] * (.82 + .18 * Math.sin(now / 320 + i * .7)), h = Math.max(1, Math.abs(v) * eh * .48);
+      ectx.fillStyle = 'rgba(' + col + ',' + (.35 + Math.abs(v) * .55).toFixed(2) + ')';
+      ectx.fillRect(i * bw + .4, eh / 2 - (v > 0 ? h : 0), Math.max(1, bw - .8), h);
+    }
+  }
+  function dom(now) {
+    if (mode === 'follow') {
+      const u = k => clamp(k / (W * .5), -1, 1), cx = u(drone.ax), fwd = u(-drone.ay);
+      const m = [.5 + .22 * (cx - fwd), .5 + .22 * (-cx - fwd), .5 + .22 * (-cx + fwd), .5 + .22 * (cx + fwd)];
+      fills.forEach((f, i) => { f.style.height = clamp(m[i] * 100, 8, 100).toFixed(0) + '%'; });
+      elErr.textContent = Math.hypot(drone.ex, drone.ey).toFixed(1) + ' px'; elState.textContent = 'Locked'; dot.classList.remove('warn');
+      elMatch.textContent = 'cos ' + (.93 + .02 * Math.sin(now / 700)).toFixed(2) + ' · owner';
+    } else {
+      fills.forEach(f => { f.style.height = (50 + (Math.random() * 3 - 1.5)).toFixed(0) + '%'; });
+      elErr.textContent = 'hover'; elState.textContent = intruderIn ? 'Intruder' : 'Armed'; dot.classList.toggle('warn', intruderIn);
+      elMatch.textContent = intruderIn ? 'cos 0.31 · unknown' : 'cos 0.93 · owner';
+    }
+    elLat.textContent = (30 + Math.round(3 * Math.sin(now / 900) + Math.random() * 2)) + ' ms';
+  }
+  function frame(now) {
+    raf = 0; if (!vis) return;
+    const dt = Math.min(.05, (now - last) / 1000 || .016); last = now; T += dt;
+    step(dt); render();
+    if (now - embT > 80) { embT = now; drawEmbed(now); }
+    if (now - domT > 220) { domT = now; dom(now); }
+    raf = requestAnimationFrame(frame);
+  }
+  function still() { for (let i = 0; i < 240; i++) { T += .016; step(.016); } render(); drawEmbed(performance.now()); dom(performance.now()); }
+  function setMode(m) {
+    if (m === 'follow' && mode !== 'follow') { const w = ownerWorld(T); drone.x = w.x; drone.y = w.y; drone.vx = drone.vy = 0; }
+    mode = m;
+    $$('[data-fmode]').forEach(b => { const on = b.dataset.fmode === m; b.classList.toggle('is-on', on); b.setAttribute('aria-pressed', String(on)); });
+    if (reduce) still();
+  }
+  $$('[data-fmode]').forEach(b => b.addEventListener('click', () => setMode(b.dataset.fmode)));
+  $$('.spec').forEach(b => b.addEventListener('click', () => {
+    $$('.spec').forEach(o => o.setAttribute('aria-pressed', String(o === b)));
+    setMode(b.dataset.mode);
+    const target = $('#dash [data-panel="' + b.dataset.panel + '"]'); flash(target);
+    if (window.matchMedia('(max-width:1023px)').matches) $('#dash').scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'center' });
+  }));
+
+  size();
+  if ('ResizeObserver' in window) { let rt; new ResizeObserver(() => { clearTimeout(rt); rt = setTimeout(() => { size(); if (reduce) still(); }, 120); }).observe(cv); }
+  if (reduce) { still(); return; }
+  if ('IntersectionObserver' in window) {
+    new IntersectionObserver(es => { vis = es[0].isIntersecting; if (vis && !raf) { last = performance.now(); raf = requestAnimationFrame(frame); } }, { threshold: .05 }).observe($('#dash'));
+  } else { vis = true; raf = requestAnimationFrame(frame); }
+})();
+
+
+/* ---------- Leadership ---------- */
+(function leadership() {
+  const box = $('#leaders'); if (!box) return;
+  const leaders = [
+    { init: 'BK', name: 'B. Kishore', role: 'Chief Executive Officer (CEO) & Co-CTO', area: 'Hardware Strategy & Corporate Governance', bio: 'Sets the hardware roadmap and keeps the four-person leadership team aligned on governance, partnerships and delivery commitments. Works where product strategy meets what the silicon can actually do.', focus: ['Hardware roadmap', 'Governance', 'Partnerships'] },
+    { init: 'AK', name: 'Akshay Kumar', role: 'Co-CTO', area: 'Hardware Engineering & PCB Architecture Lead', bio: 'Leads board-level architecture: stack-ups, power delivery, high-speed routing and the battery management that keeps flight hardware safe.', focus: ['PCB architecture', 'Power & BMS', 'High-speed routing'] },
+    { init: 'JJ', name: 'J. Joshua', role: 'Chief Technology Officer (CTO)', area: 'Software, Edge AI & Firmware Core', bio: 'Leads the software stack end to end: real-time firmware on the flight controller, on-device vision models and the companion interfaces. Responsible for hardware and code behaving as one system.', focus: ['Firmware core', 'Edge AI', 'Companion software'] },
+    { init: 'AJK', name: 'A. Jason Kister', role: 'Chief Operating Officer (COO)', area: 'COO & Product Delivery Lead', bio: 'Runs operations and product delivery: build schedules, test campaigns, supplier coordination and customer handoffs, so prototypes become units that ship.', focus: ['Delivery', 'Test campaigns', 'Operations'] }
+  ];
+  box.innerHTML = leaders.map((p, i) =>
+    '<div class="relative lg:pt-12"><span class="leader-node" aria-hidden="true"></span><article class="glow p-5">' +
+    '<button type="button" class="w-full text-left" aria-expanded="' + (i === 0) + '" aria-controls="bio-' + i + '" data-leader="' + i + '">' +
+    '<div class="flex items-start gap-4"><span class="mono-tile">' + p.init + '</span><div class="min-w-0"><h3 class="text-lg font-semibold leading-snug">' + esc(p.name) + '</h3><p class="text-sm text-ink mt-0.5" style="opacity:.9">' + esc(p.role) + '</p></div></div>' +
+    '<p class="text-sm text-mute mt-4">' + esc(p.area) + '</p>' +
+    '<span class="mt-4 inline-flex items-center gap-1.5 text-sm text-sig"><span class="tl">' + (i === 0 ? 'Hide profile' : 'View profile') + '</span><i data-lucide="chevron-down" class="chev"></i></span></button>' +
+    '<div class="reveal" id="bio-' + i + '" data-open="' + (i === 0) + '"><div><p class="text-[15px] text-mute leading-relaxed mt-4 pt-4 border-t line">' + esc(p.bio) + '</p><div class="flex flex-wrap gap-2 mt-4">' + p.focus.map(f => '<span class="chip">' + esc(f) + '</span>').join('') + '</div></div></div>' +
+    '</article></div>').join('');
+  box.addEventListener('click', e => {
+    const b = e.target.closest('[data-leader]'); if (!b) return;
+    const open = b.getAttribute('aria-expanded') !== 'true';
+    b.setAttribute('aria-expanded', String(open));
+    $('#bio-' + b.dataset.leader).dataset.open = String(open);
+    $('.tl', b).textContent = open ? 'Hide profile' : 'View profile';
+  });
+})();
+
+/* ---------- Careers ---------- */
+const roles = [
+  { title: 'Embedded PCB Design Engineer', icon: 'circuit-board', blurb: 'Design high-speed 4–6 layer boards for flight hardware, from schematic and LiPo battery management to RF routing.', stack: ['Altium / KiCad', 'LiPo BMS', 'RF routing'] },
+  { title: 'Embedded Firmware & RTOS Engineer', icon: 'terminal', blurb: 'Write the real-time firmware that runs the flight controller and sensors on ESP32-S3 class silicon.', stack: ['C/C++', 'FreeRTOS', 'ESP32-S3'] },
+  { title: 'Edge AI & Computer Vision Engineer', icon: 'scan-face', blurb: 'Build and tune on-device face detection and recognition that fit inside a tight latency budget.', stack: ['YuNet', 'OpenCV SFace 128-D', 'ONNX'] },
+  { title: 'Mechanical & Airframe CAD Engineer', icon: 'box', blurb: 'Design airframes and mounts that are light, stiff and printable, from CAD to FEA to carbon-fiber layups.', stack: ['Carbon fiber', '3D printing', 'FEA'] },
+  { title: 'Drone Flight Test & QA Technician', icon: 'gauge', blurb: 'Run bench dynamometer tests and field flights, and turn every anomaly into a documented fix.', stack: ['Field flight tests', 'Bench dynamometers'] },
+  { title: 'Open Engineering Application', icon: 'compass', blurb: "Don't see your role? If you build hardware or software that has to work in the real world, tell us what you've made.", stack: ['General deep-tech builders'] }
+];
+(function careers() {
+  const grid = $('#roles'), sel = $('#a-role'); if (!grid) return;
+  grid.innerHTML = roles.map((r, i) =>
+    '<article class="glow p-5 flex flex-col"><span class="mono-tile sm"><i data-lucide="' + r.icon + '"></i></span>' +
+    '<h3 class="text-[18px] font-semibold mt-4 leading-snug">' + esc(r.title) + '</h3><p class="text-sm text-mute mt-2 leading-relaxed">' + esc(r.blurb) + '</p>' +
+    '<div class="flex flex-wrap gap-2 mt-4">' + r.stack.map(s => '<span class="chip">' + esc(s) + '</span>').join('') + '</div>' +
+    '<div class="mt-auto pt-6"><button type="button" class="btn btn-ghost w-full" data-role="' + i + '" aria-label="Apply for Role: ' + esc(r.title) + '">Apply for Role</button></div></article>').join('');
+  sel.innerHTML = '<option value="" disabled selected>Select a position</option>' + roles.map(r => '<option>' + esc(r.title) + '</option>').join('');
+  grid.addEventListener('click', e => {
+    const b = e.target.closest('[data-role]'); if (!b) return;
+    const form = $('#appForm'); if (form.hidden) resetApp();
+    sel.value = roles[+b.dataset.role].title;
+    $('#apply').scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'start' });
+    flash(sel, 'flash-field');
+    setTimeout(() => { const n = $('#a-name'); if (n && !n.value) n.focus({ preventScroll: true }); }, reduce ? 0 : 650);
+  });
+})();
+
+/* ---------- Form plumbing ---------- */
+function rand4() { return String(Math.floor(1000 + Math.random() * 9000)); }
+function store(key, rec) { try { const a = JSON.parse(localStorage.getItem(key) || '[]'); a.push(rec); localStorage.setItem(key, JSON.stringify(a.slice(-50))); return true; } catch (e) { return false; } }
+async function deliver(rec) {
+  try {
+    const isApp = !!rec.role;
+    const endpoint = isApp ? API_ENDPOINTS.application : API_ENDPOINTS.enquiry;
+    const res = await fetch(endpoint, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+      body: JSON.stringify(rec)
+    });
+    if (res.ok) {
+      const data = await res.json();
+      if (data && data.id) rec.id = data.id;
+    }
+  } catch (e) {
+    /* falls back gracefully to offline receipt */
+  }
+}
+
+function wire(cfg) {
+  const form = $(cfg.form), receipt = $(cfg.receipt), btn = $(cfg.btn), idle = btn.innerHTML;
+  form.addEventListener('submit', async e => {
+    e.preventDefault();
+    const fd = new FormData(form), data = Object.fromEntries(fd.entries());
+    if (cfg.multi) data[cfg.multi] = fd.getAll(cfg.multi);
+    btn.disabled = true; btn.innerHTML = '<span class="spin"></span>' + cfg.busy;
+    await new Promise(r => setTimeout(r, reduce ? 300 : 1500));
+    const rec = Object.assign({ id: '#' + cfg.prefix + '-2026-' + rand4(), at: new Date().toISOString() }, data);
+    const saved = store(cfg.key, rec); await deliver(rec);
+    form.hidden = true; receipt.hidden = false; receipt.innerHTML = cfg.render(rec, saved); refreshIcons();
+    const h = $('h3', receipt); if (h) h.focus();
+    btn.disabled = false; btn.innerHTML = idle;
+  });
+  receipt.addEventListener('click', e => { if (e.target.closest('[data-reset]')) cfg.reset(); });
+  return function reset() { form.reset(); receipt.hidden = true; receipt.innerHTML = ''; form.hidden = false; };
+}
+
+const resetApp = wire({
+  form: '#appForm', receipt: '#appReceipt', btn: '#appBtn', busy: 'Submitting...', prefix: 'APP', key: 'tetrasync.applications',
+  reset: () => resetApp(),
+  render: (r, saved) => {
+    const first = esc((r.name || '').split(' ')[0]);
+    return '<div class="flex items-start gap-4"><span class="mono-tile ok"><i data-lucide="check"></i></span><div><h3 tabindex="-1" class="text-2xl font-semibold tracking-tight">Application received</h3><p class="text-mute mt-1">Thanks, ' + first + '. Keep this ID for any follow-up.</p></div></div>' +
+      '<div class="mt-6 flex flex-wrap items-center gap-3"><span class="mono text-2xl text-sig">' + esc(r.id) + '</span><span class="chip chip-sig">Applicant ID</span></div>' +
+      '<dl class="mt-6"><dt>Position</dt><dd>' + esc(r.role) + '</dd><dt>Experience</dt><dd>' + esc(r.exp) + '</dd><dt>Email</dt><dd>' + esc(r.email) + '</dd><dt>Routing</dt><dd>Direct to Founding Board</dd></dl>' +
+      '<p class="text-sm text-mute mt-6" style="max-width:60ch">Your application has been received and dispatched directly to the founding engineering board.</p>' +
+      '<div class="flex flex-wrap gap-3 mt-5"><button type="button" class="btn btn-primary" data-reset>Submit another application</button></div>';
+  }
+});
+
+const resetEnq = wire({
+  form: '#enqForm', receipt: '#enqReceipt', btn: '#enqBtn', busy: 'Transmitting Brief...', prefix: 'TST', key: 'tetrasync.enquiries', multi: 'disc',
+  reset: () => { resetEnq(); setCtx(false); },
+  render: (r, saved) => {
+    const disc = (r.disc && r.disc.length) ? r.disc.join(', ') : 'Not specified';
+    return '<div class="flex items-start gap-4"><span class="mono-tile ok"><i data-lucide="check"></i></span><div><h3 tabindex="-1" class="text-2xl font-semibold tracking-tight">Technical brief logged</h3><p class="text-mute mt-1">Reference this ticket in any follow-up.</p></div></div>' +
+      '<div class="mt-6 flex flex-wrap items-center gap-3"><span class="mono text-2xl text-sig">' + esc(r.id) + '</span><span class="chip chip-sig">Reference ticket</span></div>' +
+      '<dl class="mt-6"><dt>From</dt><dd>' + esc(r.name) + ', ' + esc(r.company) + '</dd><dt>Phase</dt><dd>' + esc(r.phase) + '</dd><dt>Disciplines</dt><dd>' + esc(disc) + '</dd><dt>Routing</dt><dd>Direct to Engineering Board</dd><dt>Assessment</dt><dd>Target 24-48 hours</dd></dl>' +
+      '<p class="text-sm text-mute mt-6" style="max-width:60ch">Your technical brief has been received and dispatched directly to the executive board. We evaluate every inquiry within 24 to 48 hours.</p>' +
+      '<div class="flex flex-wrap gap-3 mt-5"><button type="button" class="btn btn-primary" data-reset>Submit another brief</button></div>';
+  }
+});
+
+/* ---------- AERO enquiry CTA: pre-fill + scroll ---------- */
+function setCtx(on) { $('#enqCtx').hidden = !on; }
+$('#enqCtxClear').addEventListener('click', () => { setCtx(false); const s = $('#e-scope'); if (s.value.indexOf('Enquiry on AERO One') === 0) s.value = ''; });
+$('#aeroCta').addEventListener('click', e => {
+  e.preventDefault();
+  if ($('#enqForm').hidden) resetEnq();
+  const s = $('#e-scope');
+  if (s.value.indexOf('Enquiry on AERO One') !== 0) s.value = 'Enquiry on AERO One: ' + (s.value ? '\n\n' + s.value : '');
+  setCtx(true);
+  $('#enquiry').scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'start' });
+  flash(s, 'flash-field');
+  setTimeout(() => { const n = $('#e-name'); if (n && !n.value) n.focus({ preventScroll: true }); else { s.focus({ preventScroll: true }); s.setSelectionRange(s.value.length, s.value.length); } }, reduce ? 0 : 700);
+});
+
+refreshIcons();
+})();
+</script>
+</body>
+</html>

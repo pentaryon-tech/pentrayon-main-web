@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TetraSync Technologies - Founder Admin Portal</title>
+  <link rel="icon" type="image/svg+xml" href="/assets/icon.svg">
+  <style>
+    :root {
+      --bg: #090C10;
+      --bg-card: #0E131F;
+      --line: rgba(148, 170, 200, 0.16);
+      --sig: #00D2FF;
+      --ok: #10B981;
+      --warn: #F59E0B;
+      --danger: #EF4444;
+      --ink: #FFFFFF;
+      --mute: #9AA7BB;
+      --dim: #5D6A80;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: var(--bg); color: var(--ink); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.5; min-height: 100vh; }
+    .mono { font-family: 'JetBrains Mono', Consolas, Monaco, monospace; }
+    
+    /* Layout */
+    .header { border-bottom: 1px solid var(--line); background: rgba(9, 12, 16, 0.95); position: sticky; top: 0; z-index: 40; backdrop-filter: blur(12px); }
+    .wrap { max-width: 1200px; margin: 0 auto; padding: 0 20px; }
+    .header-inner { height: 64px; display: flex; align-items: center; justify-content: space-between; }
+    .brand { display: flex; align-items: center; gap: 10px; text-decoration: none; color: inherit; }
+    .brand-logo { width: 32px; height: 32px; object-fit: contain; }
+    .brand-name { font-size: 16px; font-weight: 700; letter-spacing: 0.05em; }
+    .brand-sync { color: var(--sig); }
+    .badge { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 999px; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; background: rgba(0, 210, 255, 0.1); color: var(--sig); border: 1px solid rgba(0, 210, 255, 0.3); }
+
+    /* Login Screen */
+    .login-overlay { position: fixed; inset: 0; background: rgba(9, 12, 16, 0.98); z-index: 100; display: flex; align-items: center; justify-content: center; padding: 20px; }
+    .login-box { width: 100%; max-width: 400px; background: var(--bg-card); border: 1px solid var(--line); border-radius: 16px; padding: 32px; text-align: center; }
+    .input { width: 100%; height: 44px; background: rgba(6, 9, 14, 0.7); border: 1px solid var(--line); border-radius: 8px; color: #FFF; padding: 0 14px; font-size: 14px; margin-top: 16px; outline: none; }
+    .input:focus { border-color: var(--sig); box-shadow: 0 0 0 2px rgba(0, 210, 255, 0.2); }
+    .btn { display: inline-flex; align-items: center; justify-content: center; height: 42px; padding: 0 20px; border-radius: 8px; font-weight: 600; font-size: 14px; cursor: pointer; border: none; text-decoration: none; transition: all 0.2s; }
+    .btn-primary { background: linear-gradient(135deg, #00D2FF 0%, #0A58CA 100%); color: #FFF; width: 100%; margin-top: 14px; }
+    .btn-primary:hover { opacity: 0.9; }
+    .btn-sm { height: 32px; padding: 0 12px; font-size: 12px; }
+    .btn-ghost { background: transparent; border: 1px solid var(--line); color: var(--mute); }
+    .btn-ghost:hover { color: #FFF; border-color: var(--sig); }
+
+    /* Dashboard */
+    .metrics-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; margin: 32px 0 24px; }
+    .metric-card { background: var(--bg-card); border: 1px solid var(--line); border-radius: 12px; padding: 20px; }
+    .metric-title { font-size: 13px; color: var(--mute); margin-bottom: 6px; }
+    .metric-val { font-size: 28px; font-weight: 700; color: #FFF; }
+    .metric-sub { font-size: 12px; color: var(--dim); margin-top: 4px; }
+
+    /* Tabs */
+    .tabs { display: flex; gap: 8px; border-bottom: 1px solid var(--line); margin-bottom: 24px; }
+    .tab-btn { padding: 10px 18px; background: transparent; border: none; border-bottom: 2px solid transparent; color: var(--mute); font-size: 14px; font-weight: 600; cursor: pointer; }
+    .tab-btn.active { color: var(--sig); border-bottom-color: var(--sig); }
+
+    /* Cards List */
+    .card-list { display: flex; flex-direction: column; gap: 16px; margin-bottom: 40px; }
+    .item-card { background: var(--bg-card); border: 1px solid var(--line); border-radius: 12px; padding: 22px; transition: border-color 0.2s; }
+    .item-card:hover { border-color: rgba(0, 210, 255, 0.4); }
+    .item-header { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 14px; }
+    .item-title { font-size: 18px; font-weight: 600; }
+    .meta-row { display: flex; flex-wrap: wrap; gap: 16px; font-size: 13px; color: var(--mute); margin-bottom: 14px; }
+    .scope-box { background: rgba(6, 9, 14, 0.6); border: 1px solid var(--line); border-radius: 8px; padding: 14px; font-size: 13px; color: #D1D9E6; white-space: pre-wrap; margin-bottom: 16px; line-height: 1.6; }
+    .item-footer { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; padding-top: 14px; border-top: 1px solid var(--line); }
+    
+    /* Status Badge */
+    .status-select { background: #06090E; border: 1px solid var(--line); color: #FFF; height: 32px; border-radius: 6px; padding: 0 10px; font-size: 12px; outline: none; }
+    .chip { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-family: monospace; background: rgba(255,255,255,0.06); color: var(--mute); border: 1px solid var(--line); margin-right: 4px; }
+    
+    /* Table for Logs */
+    .log-table { width: 100%; border-collapse: collapse; font-size: 13px; text-align: left; background: var(--bg-card); border: 1px solid var(--line); border-radius: 12px; overflow: hidden; }
+    .log-table th { padding: 12px 16px; background: rgba(6,9,14,0.6); border-bottom: 1px solid var(--line); color: var(--mute); font-weight: 600; }
+    .log-table td { padding: 12px 16px; border-bottom: 1px solid var(--line); color: #FFF; }
+  </style>
+</head>
+<body>
+
+  <!-- LOGIN GATE -->
+  <div id="loginGate" class="login-overlay">
+    <div class="login-box">
+      <div style="margin-bottom: 20px;">
+        <span class="badge">Zero-Trust Security</span>
+      </div>
+      <h2 style="font-size: 20px; font-weight: 700; margin-bottom: 8px;">Founder Portal Unlock</h2>
+      <p style="font-size: 13px; color: var(--mute);">B. Kishore &bull; Akshay Kumar &bull; J. Joshua &bull; A. Jason Kister</p>
+      <form id="loginForm" style="margin-top: 16px;">
+        <div style="text-align: left; margin-bottom: 12px;">
+          <label for="adminName" style="display: block; font-size: 12px; color: var(--mute); margin-bottom: 6px;">Executive Identity / Name</label>
+          <input type="text" id="adminName" class="input" placeholder="Select or type your name" list="founderList" required autocomplete="name" autofocus style="margin-bottom: 12px;">
+          <datalist id="founderList">
+            <option value="B. Kishore (CEO & Co-CTO)">
+            <option value="Akshay Kumar (Co-CTO)">
+            <option value="J. Joshua (CTO)">
+            <option value="A. Jason Kister (COO)">
+          </datalist>
+
+          <label for="adminPass" style="display: block; font-size: 12px; color: var(--mute); margin-bottom: 6px;">Master Passphrase</label>
+          <input type="password" id="adminPass" class="input" placeholder="Enter Master Passphrase" required autocomplete="current-password">
+        </div>
+        <button type="submit" class="btn btn-primary" id="loginBtn" style="width: 100%; margin-top: 6px;">Unlock Executive Portal</button>
+        <p id="loginError" style="color: var(--danger); font-size: 12px; margin-top: 12px; display: none;"></p>
+      </form>
+    </div>
+  </div>
+
+  <!-- MAIN DASHBOARD -->
+  <header class="header">
+    <div class="wrap header-inner">
+      <div class="brand">
+        <img src="/assets/logo_emblem_dark.png" alt="TetraSync" class="brand-logo" onerror="this.style.display='none'">
+        <span class="brand-name">TETRA<span class="brand-sync">SYNC</span> <span style="font-size:11px;font-family:monospace;color:var(--mute)">FOUNDER PORTAL</span></span>
+      </div>
+      <div style="display: flex; align-items: center; gap: 12px;">
+        <span id="activeFounderBadge" class="badge" style="color: var(--sig); border-color: rgba(0,210,255,0.3); font-weight: 500;">
+          <span style="width:6px;height:6px;border-radius:50%;background:#00D2FF;display:inline-block"></span>
+          <span id="activeFounderName">Founder</span>
+        </span>
+        <span class="badge"><span style="width:6px;height:6px;border-radius:50%;background:#10B981;display:inline-block"></span>Live SQLite DB</span>
+        <button id="logoutBtn" class="btn btn-ghost btn-sm">Sign Out</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <!-- METRICS -->
+    <div class="metrics-grid">
+      <div class="metric-card">
+        <p class="metric-title">Project Technical Briefs</p>
+        <p class="metric-val mono" id="mEnqTotal">0</p>
+        <p class="metric-sub" id="mEnqPending">0 pending review</p>
+      </div>
+      <div class="metric-card">
+        <p class="metric-title">Candidate Applications</p>
+        <p class="metric-val mono" id="mAppTotal">0</p>
+        <p class="metric-sub" id="mAppPending">0 pending review</p>
+      </div>
+      <div class="metric-card">
+        <p class="metric-title">AppSec Shield</p>
+        <p class="metric-val mono" style="color:var(--ok)">ACTIVE</p>
+        <p class="metric-sub" id="mSecLogs">Honeypots &amp; rate limiters operational</p>
+      </div>
+    </div>
+
+    <!-- TABS -->
+    <div class="tabs">
+      <button class="tab-btn active" data-tab="tabEnquiries">Technical Briefs</button>
+      <button class="tab-btn" data-tab="tabApplications">Candidate Dossiers</button>
+      <button class="tab-btn" data-tab="tabSecurity">Security Audit Log</button>
+    </div>
+
+    <!-- TAB 1: TECHNICAL BRIEFS -->
+    <section id="tabEnquiries">
+      <div id="enquiriesList" class="card-list">
+        <p style="color:var(--mute); font-size:14px;">Loading briefs...</p>
+      </div>
+    </section>
+
+    <!-- TAB 2: CANDIDATE APPLICATIONS -->
+    <section id="tabApplications" style="display: none;">
+      <div id="applicationsList" class="card-list">
+        <p style="color:var(--mute); font-size:14px;">Loading applications...</p>
+      </div>
+    </section>
+
+    <!-- TAB 3: SECURITY AUDIT LOGS -->
+    <section id="tabSecurity" style="display: none;">
+      <div style="display: flex; justify-content: flex-end; margin-bottom: 14px;">
+        <button type="button" id="clearLogsBtn" class="btn btn-ghost btn-sm" style="color:var(--danger); border-color: rgba(239, 68, 68, 0.35);">
+          Clear Security Logs
+        </button>
+      </div>
+      <div style="overflow-x: auto; margin-bottom: 40px;">
+        <table class="log-table">
+          <thead>
+            <tr>
+              <th>Timestamp</th>
+              <th>Event</th>
+              <th>Client IP</th>
+              <th>Details</th>
+            </tr>
+          </thead>
+          <tbody id="logsBody">
+            <tr><td colspan="4" style="color:var(--mute)">Loading security telemetry...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    (function () {
+      'use strict';
+
+      const $ = (s) => document.querySelector(s);
+      const $$ = (s) => Array.from(document.querySelectorAll(s));
+
+      // Elements
+      const loginGate = $('#loginGate');
+      const loginForm = $('#loginForm');
+      const adminName = $('#adminName');
+      const adminPass = $('#adminPass');
+      const loginError = $('#loginError');
+      const logoutBtn = $('#logoutBtn');
+      const activeFounderName = $('#activeFounderName');
+
+      // Metric Elements
+      const mEnqTotal = $('#mEnqTotal');
+      const mEnqPending = $('#mEnqPending');
+      const mAppTotal = $('#mAppTotal');
+      const mAppPending = $('#mAppPending');
+
+      // Lists
+      const enquiriesList = $('#enquiriesList');
+      const applicationsList = $('#applicationsList');
+      const logsBody = $('#logsBody');
+
+      // Check initial auth status
+      async function checkAuth() {
+        try {
+          const res = await fetch('/api/auth/status');
+          const data = await res.json();
+          if (data.authenticated) {
+            loginGate.style.display = 'none';
+            if (data.adminName && activeFounderName) {
+              activeFounderName.textContent = data.adminName;
+            }
+            loadDashboard();
+          } else {
+            loginGate.style.display = 'flex';
+          }
+        } catch (e) {
+          loginGate.style.display = 'flex';
+        }
+      }
+
+      // Handle Login
+      loginForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        loginError.style.display = 'none';
+        const name = adminName.value.trim();
+        const password = adminPass.value;
+
+        try {
+          const res = await fetch('/api/auth/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ name, password })
+          });
+
+          const data = await res.json();
+          if (res.ok && data.success) {
+            loginGate.style.display = 'none';
+            if (data.adminName && activeFounderName) {
+              activeFounderName.textContent = data.adminName;
+            }
+            adminPass.value = '';
+            loadDashboard();
+          } else {
+            loginError.textContent = data.message || 'Authentication failed';
+            loginError.style.display = 'block';
+          }
+        } catch (err) {
+          loginError.textContent = 'Server connection error';
+          loginError.style.display = 'block';
+        }
+      });
+
+      // Handle Logout
+      logoutBtn.addEventListener('click', async () => {
+        await fetch('/api/auth/logout', { method: 'POST' });
+        window.location.reload();
+      });
+
+      // Tab Switching
+      $$('.tab-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          $$('.tab-btn').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+
+          const tabId = btn.dataset.tab;
+          $('#tabEnquiries').style.display = tabId === 'tabEnquiries' ? 'block' : 'none';
+          $('#tabApplications').style.display = tabId === 'tabApplications' ? 'block' : 'none';
+          $('#tabSecurity').style.display = tabId === 'tabSecurity' ? 'block' : 'none';
+        });
+      });
+
+      // Load all dashboard data
+      async function loadDashboard() {
+        loadMetrics();
+        loadEnquiries();
+        loadApplications();
+        loadSecurityLogs();
+      }
+
+      async function loadMetrics() {
+        try {
+          const res = await fetch('/api/admin/metrics');
+          const json = await res.json();
+          if (json.success) {
+            mEnqTotal.textContent = json.enquiries.total;
+            mEnqPending.textContent = `${json.enquiries.pending} pending review`;
+            mAppTotal.textContent = json.applications.total;
+            mAppPending.textContent = `${json.applications.pending} pending review`;
+          }
+        } catch (e) {}
+      }
+
+      // Render Technical Briefs (DOM XSS Safe via textContent)
+      async function loadEnquiries() {
+        try {
+          const res = await fetch('/api/admin/enquiries');
+          const json = await res.json();
+          if (!json.success || json.data.length === 0) {
+            enquiriesList.innerHTML = '<p style="color:var(--mute);padding:20px;text-align:center">No technical briefs logged yet.</p>';
+            return;
+          }
+
+          enquiriesList.innerHTML = '';
+          json.data.forEach(item => {
+            const card = document.createElement('article');
+            card.className = 'item-card';
+
+            const header = document.createElement('div');
+            header.className = 'item-header';
+
+            const title = document.createElement('h3');
+            title.className = 'item-title';
+            title.textContent = `${item.company || 'Direct Client'} (${item.name})`;
+
+            const idBadge = document.createElement('span');
+            idBadge.className = 'mono badge';
+            idBadge.textContent = item.id;
+
+            header.appendChild(title);
+            header.appendChild(idBadge);
+
+            const meta = document.createElement('div');
+            meta.className = 'meta-row';
+            meta.innerHTML = `
+              <span>Email: <a href="mailto:${encodeURIComponent(item.email)}" style="color:var(--sig)">${document.createTextNode(item.email).wholeText}</a></span>
+              <span>Phase: <strong>${document.createTextNode(item.phase || 'N/A').wholeText}</strong></span>
+              <span>Date: ${new Date(item.created_at).toLocaleString()}</span>
+            `;
+
+            const discRow = document.createElement('div');
+            discRow.style.marginBottom = '12px';
+            if (Array.isArray(item.disciplines)) {
+              item.disciplines.forEach(d => {
+                const c = document.createElement('span');
+                c.className = 'chip';
+                c.textContent = d;
+                discRow.appendChild(c);
+              });
+            }
+
+            const scope = document.createElement('div');
+            scope.className = 'scope-box';
+            scope.textContent = item.scope;
+
+            const footer = document.createElement('div');
+            footer.className = 'item-footer';
+
+            const leftActions = document.createElement('div');
+            leftActions.style.display = 'flex';
+            leftActions.style.alignItems = 'center';
+            leftActions.style.gap = '8px';
+
+            const label = document.createElement('label');
+            label.style.fontSize = '12px';
+            label.style.color = 'var(--mute)';
+            label.textContent = 'Status:';
+
+            const select = document.createElement('select');
+            select.className = 'status-select';
+            ['pending', 'reviewed', 'contacted', 'archived'].forEach(st => {
+              const opt = document.createElement('option');
+              opt.value = st;
+              opt.textContent = st.toUpperCase();
+              if (st === item.status) opt.selected = true;
+              select.appendChild(opt);
+            });
+
+            select.addEventListener('change', async () => {
+              await fetch(`/api/admin/enquiries/${item.id}`, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ status: select.value })
+              });
+              loadMetrics();
+            });
+
+            leftActions.appendChild(label);
+            leftActions.appendChild(select);
+
+            const replyBtn = document.createElement('a');
+            replyBtn.className = 'btn btn-ghost btn-sm';
+            replyBtn.href = `mailto:${encodeURIComponent(item.email)}?subject=${encodeURIComponent('TetraSync Technologies - Project Evaluation ' + item.id)}`;
+            replyBtn.textContent = 'Reply to Client →';
+
+            const delBtn = document.createElement('button');
+            delBtn.type = 'button';
+            delBtn.className = 'btn btn-ghost btn-sm';
+            delBtn.style.color = 'var(--danger)';
+            delBtn.style.borderColor = 'rgba(239, 68, 68, 0.35)';
+            delBtn.textContent = 'Delete';
+            delBtn.addEventListener('click', async () => {
+              if (confirm(`Permanently delete technical brief ${item.id}?`)) {
+                await fetch(`/api/admin/enquiries/${encodeURIComponent(item.id)}`, { method: 'DELETE' });
+                loadDashboard();
+              }
+            });
+
+            const rightActions = document.createElement('div');
+            rightActions.style.display = 'flex';
+            rightActions.style.alignItems = 'center';
+            rightActions.style.gap = '8px';
+            rightActions.appendChild(delBtn);
+            rightActions.appendChild(replyBtn);
+
+            footer.appendChild(leftActions);
+            footer.appendChild(rightActions);
+
+            card.appendChild(header);
+            card.appendChild(meta);
+            if (item.disciplines && item.disciplines.length) card.appendChild(discRow);
+            card.appendChild(scope);
+            card.appendChild(footer);
+
+            enquiriesList.appendChild(card);
+          });
+        } catch (e) {
+          enquiriesList.innerHTML = '<p style="color:var(--danger)">Error loading technical briefs.</p>';
+        }
+      }
+
+      // Render Candidate Dossiers
+      async function loadApplications() {
+        try {
+          const res = await fetch('/api/admin/applications');
+          const json = await res.json();
+          if (!json.success || json.data.length === 0) {
+            applicationsList.innerHTML = '<p style="color:var(--mute);padding:20px;text-align:center">No candidate applications submitted yet.</p>';
+            return;
+          }
+
+          applicationsList.innerHTML = '';
+          json.data.forEach(item => {
+            const card = document.createElement('article');
+            card.className = 'item-card';
+
+            const header = document.createElement('div');
+            header.className = 'item-header';
+
+            const title = document.createElement('h3');
+            title.className = 'item-title';
+            title.textContent = `${item.name} · ${item.role}`;
+
+            const idBadge = document.createElement('span');
+            idBadge.className = 'mono badge';
+            idBadge.textContent = item.id;
+
+            header.appendChild(title);
+            header.appendChild(idBadge);
+
+            const meta = document.createElement('div');
+            meta.className = 'meta-row';
+            meta.innerHTML = `
+              <span>Email: <a href="mailto:${encodeURIComponent(item.email)}" style="color:var(--sig)">${document.createTextNode(item.email).wholeText}</a></span>
+              <span>Phone: ${document.createTextNode(item.phone).wholeText}</span>
+              <span>Experience: <strong>${document.createTextNode(item.experience).wholeText}</strong></span>
+              ${item.portfolio_link ? `<span><a href="${encodeURI(item.portfolio_link)}" target="_blank" rel="noopener" style="color:var(--sig);text-decoration:underline">Portfolio Link &UpperRightArrow;</a></span>` : ''}
+              <span>Date: ${new Date(item.created_at).toLocaleString()}</span>
+            `;
+
+            const projects = document.createElement('div');
+            projects.className = 'scope-box';
+            projects.textContent = item.projects || 'No notable projects entered.';
+
+            const footer = document.createElement('div');
+            footer.className = 'item-footer';
+
+            const leftActions = document.createElement('div');
+            leftActions.style.display = 'flex';
+            leftActions.style.alignItems = 'center';
+            leftActions.style.gap = '8px';
+
+            const label = document.createElement('label');
+            label.style.fontSize = '12px';
+            label.style.color = 'var(--mute)';
+            label.textContent = 'Decision:';
+
+            const select = document.createElement('select');
+            select.className = 'status-select';
+            ['pending', 'shortlisted', 'rejected', 'hired'].forEach(st => {
+              const opt = document.createElement('option');
+              opt.value = st;
+              opt.textContent = st.toUpperCase();
+              if (st === item.status) opt.selected = true;
+              select.appendChild(opt);
+            });
+
+            select.addEventListener('change', async () => {
+              await fetch(`/api/admin/applications/${item.id}`, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ status: select.value })
+              });
+              loadMetrics();
+            });
+
+            leftActions.appendChild(label);
+            leftActions.appendChild(select);
+
+            const emailBtn = document.createElement('a');
+            emailBtn.className = 'btn btn-ghost btn-sm';
+            emailBtn.href = `mailto:${encodeURIComponent(item.email)}?subject=${encodeURIComponent('TetraSync Engineering Application ' + item.id + ' - ' + item.role)}`;
+            emailBtn.textContent = 'Email Candidate →';
+
+            const delBtn = document.createElement('button');
+            delBtn.type = 'button';
+            delBtn.className = 'btn btn-ghost btn-sm';
+            delBtn.style.color = 'var(--danger)';
+            delBtn.style.borderColor = 'rgba(239, 68, 68, 0.35)';
+            delBtn.textContent = 'Delete';
+            delBtn.addEventListener('click', async () => {
+              if (confirm(`Permanently delete application ${item.id}?`)) {
+                await fetch(`/api/admin/applications/${encodeURIComponent(item.id)}`, { method: 'DELETE' });
+                loadDashboard();
+              }
+            });
+
+            const rightActions = document.createElement('div');
+            rightActions.style.display = 'flex';
+            rightActions.style.alignItems = 'center';
+            rightActions.style.gap = '8px';
+            rightActions.appendChild(delBtn);
+            rightActions.appendChild(emailBtn);
+
+            footer.appendChild(leftActions);
+            footer.appendChild(rightActions);
+
+            card.appendChild(header);
+            card.appendChild(meta);
+            card.appendChild(projects);
+            card.appendChild(footer);
+
+            applicationsList.appendChild(card);
+          });
+        } catch (e) {
+          applicationsList.innerHTML = '<p style="color:var(--danger)">Error loading candidate applications.</p>';
+        }
+      }
+
+      // Render Security Logs
+      async function loadSecurityLogs() {
+        try {
+          const res = await fetch('/api/admin/security-logs');
+          const json = await res.json();
+          if (!json.success || json.data.length === 0) {
+            logsBody.innerHTML = '<tr><td colspan="4" style="color:var(--ok);padding:16px;">Zero suspicious events recorded. Perimeter clean.</td></tr>';
+            return;
+          }
+
+          logsBody.innerHTML = '';
+          json.data.forEach(log => {
+            const tr = document.createElement('tr');
+            
+            const tdTime = document.createElement('td');
+            tdTime.className = 'mono';
+            tdTime.style.color = 'var(--mute)';
+            tdTime.textContent = new Date(log.created_at).toLocaleString();
+
+            const tdEvt = document.createElement('td');
+            const b = document.createElement('span');
+            b.className = 'chip';
+            b.style.color = log.event_type.includes('BOT') || log.event_type.includes('BRUTE') ? 'var(--warn)' : 'var(--sig)';
+            b.textContent = log.event_type;
+            tdEvt.appendChild(b);
+
+            const tdIp = document.createElement('td');
+            tdIp.className = 'mono';
+            tdIp.textContent = log.ip_address || 'unknown';
+
+            const tdDet = document.createElement('td');
+            tdDet.style.fontSize = '12px';
+            tdDet.style.color = 'var(--mute)';
+            tdDet.textContent = log.details || '';
+
+            tr.appendChild(tdTime);
+            tr.appendChild(tdEvt);
+            tr.appendChild(tdIp);
+            tr.appendChild(tdDet);
+
+            logsBody.appendChild(tr);
+          });
+        } catch (e) {}
+      }
+
+      const clearLogsBtn = $('#clearLogsBtn');
+      if (clearLogsBtn) {
+        clearLogsBtn.addEventListener('click', async () => {
+          if (confirm('Permanently clear all security audit logs?')) {
+            await fetch('/api/admin/security-logs', { method: 'DELETE' });
+            loadSecurityLogs();
+          }
+        });
+      }
+
+      checkAuth();
+    })();
+  </script>
+</body>
+</html>

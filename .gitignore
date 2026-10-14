@@ -1,0 +1,53 @@
+# Dependencies
+node_modules/
+package-lock.json
+
+# Environment & Credentials
+.env
+.env.local
+.env.*.local
+
+# Database & SQLite State
+data/*.db
+data/*.db-wal
+data/*.db-shm
+data/*.db-journal
+*.db
+*.sqlite
+
+# Logs & Runtime telemetry
+logs/
+*.log
+npm-debug.log*
+
+# OS & Editor Artifacts
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Python & Caches
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+venv/
+.venv/
+env/
+
+# Large Model Weights (>100MB exceeds GitHub push limit)
+merged_model/model.safetensors
+*.safetensors
+*.onnx
+*.bin
+*.pth
+*.pt
+
+# Embedded / PlatformIO Build Artifacts
+.pio/
+*/.pio/
+*.o
+*.a
+*.d
+
+

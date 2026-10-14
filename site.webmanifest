@@ -1,0 +1,17 @@
+{
+  "name": "TetraSync Technologies",
+  "short_name": "TetraSync",
+  "description": "Synchronizing Silicon & Code - Deep Tech Integrated Systems Engineering",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#090C12",
+  "theme_color": "#00D2FF",
+  "icons": [
+    {
+      "src": "assets/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

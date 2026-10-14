@@ -1,0 +1,29 @@
+{
+  "name": "tetrasync-backend",
+  "version": "1.0.0",
+  "description": "Production Backend for TetraSync Technologies",
+  "main": "server/index.js",
+  "scripts": {
+    "start": "node server/index.js",
+    "dev": "node --watch server/index.js",
+    "test": "node tests/backend_security_test.js"
+  },
+  "keywords": [
+    "tetrasync",
+    "aero",
+    "backend",
+    "express",
+    "sqlite"
+  ],
+  "author": "TetraSync Technologies",
+  "license": "UNLICENSED",
+  "private": true,
+  "dependencies": {
+    "cookie-parser": "^1.4.7",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "helmet": "^8.0.0",
+    "nodemailer": "^10.1.1"
+  }
+}
