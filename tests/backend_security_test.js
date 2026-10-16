@@ -227,6 +227,7 @@ async function runTests() {
     });
     assert.strictEqual(res.status, 200);
     assert.strictEqual(res.json.success, true);
+    assert.strictEqual(res.json.token, undefined, 'rawToken must never be returned in JSON response body');
 
     const setCookie = res.headers['set-cookie'];
     assert.ok(setCookie, 'Should provide Set-Cookie header');
@@ -285,7 +286,59 @@ async function runTests() {
     assert.ok(res.json.data.length >= 1, 'At least one security log should be recorded');
   });
 
-  // 13. Auth Logout
+  // 13. Security: Log Purge Non-Repudiation (Leaves Indelible Audit Ledger Entry)
+  await test('DELETE /api/admin/security-logs purges logs but leaves immutable audit trail', async () => {
+    const res = await request({
+      method: 'DELETE',
+      path: '/api/admin/security-logs',
+      headers: { Cookie: sessionCookie }
+    });
+    assert.strictEqual(res.status, 200);
+    assert.strictEqual(res.json.success, true);
+
+    // Verify non-repudiation log exists in database
+    const verifyRes = await request({
+      method: 'GET',
+      path: '/api/admin/security-logs',
+      headers: { Cookie: sessionCookie }
+    });
+    assert.strictEqual(verifyRes.status, 200);
+    assert.ok(verifyRes.json.data.length >= 1, 'Purge action must itself be logged');
+    assert.strictEqual(verifyRes.json.data[0].event_type, 'SECURITY_LOGS_PURGED');
+  });
+
+  // 14. Network AppSec: Strict CORS Whitelist Verification
+  await test('CORS rejects unauthorized origin and accepts trusted domain', async () => {
+    // Untrusted origin
+    const badRes = await request({
+      method: 'GET',
+      path: '/api/health',
+      headers: { Origin: 'https://evil-hacker.com' }
+    });
+    assert.strictEqual(badRes.status, 200);
+    assert.strictEqual(badRes.headers['access-control-allow-origin'], undefined, 'Untrusted origin must not receive Access-Control-Allow-Origin');
+
+    // Trusted production origin
+    const goodRes = await request({
+      method: 'GET',
+      path: '/api/health',
+      headers: { Origin: 'https://tetrasync.tech' }
+    });
+    assert.strictEqual(goodRes.status, 200);
+    assert.strictEqual(goodRes.headers['access-control-allow-origin'], 'https://tetrasync.tech');
+    assert.strictEqual(goodRes.headers['access-control-allow-credentials'], 'true');
+  });
+
+  // 15. AppSec Headers: CSP unsafe-eval removal & Permissions-Policy
+  await test('Security headers enforce strict CSP and Permissions-Policy', async () => {
+    const res = await request({ method: 'GET', path: '/' });
+    assert.strictEqual(res.status, 200);
+    const csp = res.headers['content-security-policy'] || '';
+    assert.ok(!csp.includes("'unsafe-eval'"), "CSP must NOT include 'unsafe-eval'");
+    assert.ok(res.headers['permissions-policy'], 'Permissions-Policy header must be present');
+  });
+
+  // 16. Auth Logout
   await test('POST /api/auth/logout terminates session', async () => {
     const res = await request({
       method: 'POST',

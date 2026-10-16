@@ -17,7 +17,7 @@ const app = express();
 // 1. AppSec Hardening: Disable fingerprinting headers
 app.disable('x-powered-by');
 
-// 2. Helmet Security Headers (HSTS, NoSniff, Clickjacking Denial)
+// 2. Helmet Security Headers (HSTS, NoSniff, Clickjacking Denial, Strict CSP)
 app.use(helmet({
   contentSecurityPolicy: {
     directives: {
@@ -25,7 +25,6 @@ app.use(helmet({
       scriptSrc: [
         "'self'",
         "'unsafe-inline'",
-        "'unsafe-eval'",
         "https://cdn.tailwindcss.com",
         "https://cdn.jsdelivr.net",
         "https://unpkg.com"
@@ -61,9 +60,30 @@ app.use(helmet({
   crossOriginEmbedderPolicy: false
 }));
 
-// 3. CORS
+// Additional Defense-in-Depth Headers
+app.use((req, res, next) => {
+  res.setHeader('Permissions-Policy', 'camera=(), microphone=(), geolocation=()');
+  next();
+});
+
+// 3. Strict Whitelist CORS (Prevents Credentialed Cross-Origin Leaks)
+const ALLOWED_ORIGIN_PATTERNS = [
+  /^http:\/\/localhost(:\d+)?$/,
+  /^http:\/\/127\.0\.0\.1(:\d+)?$/,
+  /^https:\/\/[a-z0-9-]+\.vercel\.app$/,
+  /^https:\/\/(www\.)?tetrasync\.tech$/
+];
+
 app.use(cors({
-  origin: true,
+  origin: (origin, callback) => {
+    // Allow requests without Origin header (same-origin, server-to-server, curl)
+    if (!origin) return callback(null, true);
+    const isAllowed = ALLOWED_ORIGIN_PATTERNS.some(pattern => pattern.test(origin));
+    if (isAllowed) {
+      return callback(null, true);
+    }
+    return callback(null, false);
+  },
   credentials: true
 }));
 

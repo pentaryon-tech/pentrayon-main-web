@@ -43,4 +43,14 @@ const config = {
   }
 };
 
+// Security check: Warn if default secrets are used in production
+if (config.isProd) {
+  if (config.adminPassword === 'TetraSync') {
+    console.warn('[SECURITY WARNING] Running in production with default ADMIN_PASSWORD! Set ADMIN_PASSWORD in environment variables immediately.');
+  }
+  if (config.sessionSecret === 'tetrasync-default-secure-secret-key-2026') {
+    console.warn('[SECURITY WARNING] Running in production with default SESSION_SECRET! Set SESSION_SECRET in environment variables immediately.');
+  }
+}
+
 module.exports = config;

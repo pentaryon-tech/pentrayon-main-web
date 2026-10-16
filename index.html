@@ -1129,7 +1129,16 @@ const roles = [
 
 /* ---------- Form plumbing ---------- */
 function rand4() { return String(Math.floor(1000 + Math.random() * 9000)); }
-function store(key, rec) { try { const a = JSON.parse(localStorage.getItem(key) || '[]'); a.push(rec); localStorage.setItem(key, JSON.stringify(a.slice(-50))); return true; } catch (e) { return false; } }
+function store(key, rec) {
+  try {
+    const a = JSON.parse(localStorage.getItem(key) || '[]');
+    // Store only minimal receipt metadata to protect client PII in browser storage
+    const summary = { id: rec.id, at: rec.at, label: rec.role || rec.phase || 'Submission' };
+    a.push(summary);
+    localStorage.setItem(key, JSON.stringify(a.slice(-20)));
+    return true;
+  } catch (e) { return false; }
+}
 async function deliver(rec) {
   try {
     const isApp = !!rec.role;

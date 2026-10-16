@@ -67,7 +67,6 @@ router.post('/login', loginAttemptLimiter, (req, res) => {
   return res.json({
     success: true,
     message: 'Founder authentication successful',
-    token: rawToken,
     adminName,
     expiresAt: expiresAt.toISOString()
   });

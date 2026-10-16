@@ -151,56 +151,47 @@ async function handleEnquirySubmit(e) {
     submitBtn.style.cursor = 'not-allowed';
   }
 
-  // Store in LocalStorage for client-side persistence and audit log
+  // Store minimal receipt in LocalStorage
   const enquiryRecord = {
     ref: refCode,
     timestamp: new Date().toISOString(),
-    name,
-    email,
     company,
-    phase,
-    scopes,
-    brief,
-    targetEmail: 'ideathinigirs@gmail.com'
+    phase
   };
 
   try {
     const existing = JSON.parse(localStorage.getItem('tetrasync_enquiries') || '[]');
     existing.push(enquiryRecord);
-    localStorage.setItem('tetrasync_enquiries', JSON.stringify(existing));
+    localStorage.setItem('tetrasync_enquiries', JSON.stringify(existing.slice(-20)));
   } catch (err) {
     console.warn('LocalStorage unavailable:', err);
   }
 
-  // Dispatch live email to ideathinigirs@gmail.com via AJAX
-  const payload = {
-    _subject: `[TetraSync] New Technical Brief: ${company} (#${refCode})`,
-    _template: 'table',
-    _captcha: 'false',
-    'Reference Ticket': `#${refCode}`,
-    'Client Name': name,
-    'Work Email': email,
-    'Company / Institution': company,
-    'Project Phase': phase,
-    'Engineering Disciplines': scopes || 'None specified',
-    'Technical Requirements & Scope': brief,
-    'Submission Date': new Date().toLocaleString()
-  };
-
+  // Dispatch technical brief via secure internal API
   try {
-    const response = await fetch('https://formsubmit.co/ajax/ideathinigirs@gmail.com', {
+    const response = await fetch('/api/enquiry', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         'Accept': 'application/json'
       },
-      body: JSON.stringify(payload)
+      body: JSON.stringify({
+        name,
+        email,
+        company,
+        phase,
+        disc: scopes ? scopes.split(', ') : [],
+        scope: brief
+      })
     });
 
     const data = await response.json();
-    console.log('Technical brief successfully dispatched to ideathinigirs@gmail.com:', data);
+    if (data && data.id) {
+      refCode = data.id.replace('#', '');
+    }
+    console.log('Technical brief successfully recorded:', data);
   } catch (netErr) {
-    console.warn('Network dispatch fallback triggered (data securely cached locally):', netErr);
+    console.warn('Network dispatch fallback triggered (data cached locally):', netErr);
   } finally {
     if (submitBtn) {
       submitBtn.disabled = false;
@@ -225,7 +216,7 @@ async function handleEnquirySubmit(e) {
     }
 
     if (bannerMsg) {
-      bannerMsg.innerText = `Thank you, ${name}. Your project parameters for ${company} have been transmitted directly to ideathinigirs@gmail.com under ticket #${refCode}. Founding partners B. Kishore (CEO), Akshay Kumar (CTO HW), J. Joshua (CTO SW), and A. Jason Kister (COO) will review your brief and follow up within 24 to 48 hours.`;
+      bannerMsg.innerText = `Thank you, ${name}. Your project parameters for ${company} have been transmitted directly to the executive founding team under ticket #${refCode}. Founding partners B. Kishore (CEO), Akshay Kumar (CTO HW), J. Joshua (CTO SW), and A. Jason Kister (COO) will review your brief and follow up within 24 to 48 hours.`;
     }
 
     banner.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
@@ -295,58 +286,48 @@ async function handleCareerSubmit(e) {
     submitBtn.style.cursor = 'not-allowed';
   }
 
-  // Store application in LocalStorage for client-side audit
+  // Store minimal receipt in LocalStorage
   const appRecord = {
     ref: refCode,
     timestamp: new Date().toISOString(),
-    name,
-    email,
-    phone,
     role,
-    experience,
-    portfolio,
-    statement,
-    targetEmail: 'ideathinigirs@gmail.com'
+    experience
   };
 
   try {
     const existingApps = JSON.parse(localStorage.getItem('tetrasync_applications') || '[]');
     existingApps.push(appRecord);
-    localStorage.setItem('tetrasync_applications', JSON.stringify(existingApps));
+    localStorage.setItem('tetrasync_applications', JSON.stringify(existingApps.slice(-20)));
   } catch (err) {
     console.warn('LocalStorage unavailable for application caching:', err);
   }
 
-  // Dispatch candidate profile via AJAX to ideathinigirs@gmail.com
-  const payload = {
-    _subject: `[TetraSync Careers] Application: ${role} - ${name} (#${refCode})`,
-    _template: 'table',
-    _captcha: 'false',
-    'Reference Code': `#${refCode}`,
-    'Applicant Name': name,
-    'Email Address': email,
-    'Phone / WhatsApp': phone,
-    'Target Position': role,
-    'Experience Level': experience,
-    'Portfolio / GitHub URL': portfolio,
-    'Key Technical Projects & Skills': statement,
-    'Application Timestamp': new Date().toLocaleString()
-  };
-
+  // Dispatch candidate profile via secure internal API
   try {
-    const response = await fetch('https://formsubmit.co/ajax/ideathinigirs@gmail.com', {
+    const response = await fetch('/api/applications', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         'Accept': 'application/json'
       },
-      body: JSON.stringify(payload)
+      body: JSON.stringify({
+        name,
+        email,
+        phone,
+        role,
+        exp: experience,
+        link: portfolio,
+        projects: statement
+      })
     });
 
     const data = await response.json();
-    console.log('Candidate application dispatched to ideathinigirs@gmail.com:', data);
+    if (data && data.id) {
+      refCode = data.id.replace('#', '');
+    }
+    console.log('Candidate application recorded:', data);
   } catch (netErr) {
-    console.warn('Network dispatch fallback triggered (application safely cached locally):', netErr);
+    console.warn('Network dispatch fallback triggered (application cached locally):', netErr);
   } finally {
     if (submitBtn) {
       submitBtn.disabled = false;
@@ -371,7 +352,7 @@ async function handleCareerSubmit(e) {
     }
 
     if (bannerMsg) {
-      bannerMsg.innerText = `Thank you, ${name}. Your candidate profile for "${role}" has been transmitted directly to our founding board (ideathinigirs@gmail.com) under application #${refCode}. We review all technical portfolios and follow up within 3 to 5 business days.`;
+      bannerMsg.innerText = `Thank you, ${name}. Your candidate profile for "${role}" has been transmitted directly to our founding board under application #${refCode}. We review all technical portfolios and follow up within 3 to 5 business days.`;
     }
 
     banner.scrollIntoView({ behavior: 'smooth', block: 'nearest' });

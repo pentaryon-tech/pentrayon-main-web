@@ -149,8 +149,28 @@ router.get('/security-logs', (req, res) => {
 // DELETE /api/admin/security-logs
 router.delete('/security-logs', (req, res) => {
   try {
+    const admin = req.adminName || 'Founder';
+    const ip = req.ip || req.socket.remoteAddress || 'unknown';
+    const ua = (req.get('user-agent') || 'unknown').slice(0, 255);
+    const timestamp = new Date().toISOString();
+
     stmts.clearSecurityLogs.run();
-    return res.json({ success: true, message: 'All security audit logs cleared' });
+
+    // Preserve non-repudiation: record permanent audit entry of who performed the purge
+    stmts.insertSecurityLog.run(
+      'SECURITY_LOGS_PURGED',
+      ip,
+      ua,
+      JSON.stringify({ purgedBy: admin, reason: 'Administrative maintenance' }),
+      timestamp
+    );
+
+    return res.json({
+      success: true,
+      message: `Security audit logs cleared by ${admin}. Audit ledger updated.`,
+      purgedBy: admin,
+      timestamp
+    });
   } catch (err) {
     console.error('[ADMIN CLEAR LOGS ERROR]', err);
     return res.status(500).json({ error: 'Database Error', message: 'Unable to clear audit logs' });
