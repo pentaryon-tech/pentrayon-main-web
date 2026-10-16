@@ -608,39 +608,33 @@
 <div id="careers" class="scroll-mt-20"></div>
 <section id="recruitments" class="section band">
   <div class="wrap">
-    <h2 class="h2">Build the next aircraft with us</h2>
-    <p class="lead mt-5">Six open positions. Pick one, or send an open application if you build things that have to work in the real world.</p>
-    <div id="roles" class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-12"></div>
-
-    <div class="grid lg:grid-cols-12 gap-10 lg:gap-14 mt-20 items-start" id="apply">
-      <div class="lg:col-span-4">
-        <h3 class="text-3xl font-semibold tracking-tight" style="line-height:1.1">Candidate application</h3>
-        <p class="text-mute mt-4 leading-relaxed" style="max-width:36ch">Tell us what you have built. Links to repos, boards, flight logs and demo videos help us most.</p>
-        <p class="note mt-6"><i data-lucide="shield-check"></i><span>Confidential application delivered directly to founding engineers</span></p>
+    <div class="max-w-3xl">
+      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-mono uppercase tracking-wider text-mute border border-line bg-surface mb-6">
+        <span class="w-2 h-2 rounded-full bg-amber-400"></span>
+        <span>Recruitment Status: Closed</span>
       </div>
-      <div class="lg:col-span-8 glow p-5 sm:p-8">
-        <form id="appForm" autocomplete="on">
-          <input type="text" name="_tetra_guard" tabindex="-1" autocomplete="off" style="display:none!important" aria-hidden="true">
-          <div class="grid sm:grid-cols-2 gap-x-5 gap-y-5">
-            <div><label class="label" for="a-name">Full name</label><input class="input" id="a-name" name="name" type="text" autocomplete="name" required placeholder="Your name"></div>
-            <div><label class="label" for="a-email">Email</label><input class="input" id="a-email" name="email" type="email" autocomplete="email" required placeholder="you@example.com"></div>
-            <div><label class="label" for="a-phone">Phone</label><input class="input" id="a-phone" name="phone" type="tel" autocomplete="tel" inputmode="tel" required pattern="[0-9+\(\)\-\s]{7,}" title="Digits, spaces, + ( ) and - only" placeholder="+91 98765 43210"></div>
-            <div><label class="label" for="a-role">Target position</label><select class="input" id="a-role" name="role" required></select></div>
-            <div><label class="label" for="a-exp">Experience level</label>
-              <select class="input" id="a-exp" name="exp" required>
-                <option value="" disabled selected>Select your level</option>
-                <option>Student / intern</option><option>Fresher (0–1 yr)</option><option>Early career (1–3 yrs)</option><option>Mid-level (3–6 yrs)</option><option>Senior (6+ yrs)</option>
-              </select>
+      <h2 class="h2">Recruitments</h2>
+      <p class="lead mt-4 text-white font-medium">The recruitment is not available.</p>
+
+      <div class="glow p-6 sm:p-8 mt-8 rounded-xl border border-line" style="background: rgba(14, 19, 31, 0.65);">
+        <div class="flex items-start gap-4">
+          <span class="mono-tile sm flex-shrink-0"><i data-lucide="info"></i></span>
+          <div>
+            <h3 class="text-xl font-semibold text-white">Notice</h3>
+            <p class="text-mute mt-2 leading-relaxed">
+              The recruitment is not available at this time. TetraSync Technologies is currently operating with our core engineering founding team and is not actively hiring or reviewing candidate applications.
+            </p>
+            <p class="text-dim text-sm mt-3">
+              Future engineering positions and hardware fellowships will be announced on this page once active recruitment cycles begin.
+            </p>
+            <div class="mt-6">
+              <a href="#enquiry" class="btn btn-ghost text-xs inline-flex items-center gap-2">
+                <span>Looking to collaborate on hardware? Start a project brief</span>
+                <i data-lucide="arrow-right" style="width:13px;height:13px"></i>
+              </a>
             </div>
-            <div><label class="label" for="a-link">GitHub / portfolio URL</label><input class="input" id="a-link" name="link" type="url" inputmode="url" placeholder="https://github.com/you"></div>
           </div>
-          <div class="mt-5"><label class="label" for="a-proj">Technical projects</label><textarea class="input" id="a-proj" name="projects" required placeholder="Describe one or two hardware, firmware or vision projects you built, and what you personally did."></textarea></div>
-          <div class="mt-6 flex flex-wrap items-center gap-4">
-            <button type="submit" class="btn btn-primary" id="appBtn">Submit application</button>
-            <span class="text-sm text-dim">All fields except the portfolio link are required.</span>
-          </div>
-        </form>
-        <div id="appReceipt" class="receipt" hidden></div>
+        </div>
       </div>
     </div>
   </div>
@@ -1116,7 +1110,7 @@ const roles = [
   { title: 'Open Engineering Application', icon: 'compass', blurb: "Don't see your role? If you build hardware or software that has to work in the real world, tell us what you've made.", stack: ['General deep-tech builders'] }
 ];
 (function careers() {
-  const grid = $('#roles'), sel = $('#a-role'); if (!grid) return;
+  const grid = $('#roles'), sel = $('#a-role'); if (!grid || !sel) return;
   grid.innerHTML = roles.map((r, i) =>
     '<article class="glow p-5 flex flex-col"><span class="mono-tile sm"><i data-lucide="' + r.icon + '"></i></span>' +
     '<h3 class="text-[18px] font-semibold mt-4 leading-snug">' + esc(r.title) + '</h3><p class="text-sm text-mute mt-2 leading-relaxed">' + esc(r.blurb) + '</p>' +
@@ -1125,7 +1119,7 @@ const roles = [
   sel.innerHTML = '<option value="" disabled selected>Select a position</option>' + roles.map(r => '<option>' + esc(r.title) + '</option>').join('');
   grid.addEventListener('click', e => {
     const b = e.target.closest('[data-role]'); if (!b) return;
-    const form = $('#appForm'); if (form.hidden) resetApp();
+    const form = $('#appForm'); if (form && form.hidden) resetApp();
     sel.value = roles[+b.dataset.role].title;
     $('#apply').scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'start' });
     flash(sel, 'flash-field');
@@ -1155,7 +1149,9 @@ async function deliver(rec) {
 }
 
 function wire(cfg) {
-  const form = $(cfg.form), receipt = $(cfg.receipt), btn = $(cfg.btn), idle = btn.innerHTML;
+  const form = $(cfg.form), receipt = $(cfg.receipt), btn = $(cfg.btn);
+  if (!form || !btn) return () => {};
+  const idle = btn.innerHTML;
   form.addEventListener('submit', async e => {
     e.preventDefault();
     const fd = new FormData(form), data = Object.fromEntries(fd.entries());
