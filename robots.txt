@@ -1,0 +1,10 @@
+# TetraSync Technologies - Robots Exclusion Protocol
+# Website: https://tetrasync-fawn.vercel.app
+
+User-agent: *
+Allow: /
+Disallow: /api/
+Disallow: /admin
+
+# Sitemap index
+Sitemap: https://tetrasync-fawn.vercel.app/sitemap.xml
