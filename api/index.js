@@ -1,5 +1,5 @@
 /**
- * TetraSync Technologies - Vercel Serverless Function Entry Point
+ * Pentaryon Technology - Vercel Serverless Function Entry Point
  */
 'use strict';
 

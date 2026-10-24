@@ -1,4 +1,4 @@
-# TetraSync Technologies - Robots Exclusion Protocol
+# Pentaryon Technology - Robots Exclusion Protocol
 # Website: https://tetrasync-fawn.vercel.app
 
 User-agent: *

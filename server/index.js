@@ -1,5 +1,5 @@
 /**
- * TetraSync Technologies - Production Server Entry Point
+ * Pentaryon Technology - Production Server Entry Point
  * Hardened Express Backend with Native SQLite & Defense-in-Depth AppSec
  */
 'use strict';
@@ -71,6 +71,7 @@ const ALLOWED_ORIGIN_PATTERNS = [
   /^http:\/\/localhost(:\d+)?$/,
   /^http:\/\/127\.0\.0\.1(:\d+)?$/,
   /^https:\/\/[a-z0-9-]+\.vercel\.app$/,
+  /^https:\/\/(www\.)?pentaryon\.tech$/,
   /^https:\/\/(www\.)?tetrasync\.tech$/
 ];
 
@@ -110,7 +111,7 @@ app.get('/api/health', (req, res) => {
   res.json({
     status: 'ONLINE',
     database: dbStatus,
-    system: 'TetraSync Technologies Core Engine',
+    system: 'Pentaryon Technology Core Engine',
     version: '1.0.0',
     uptime: Math.round(process.uptime()),
     timestamp: new Date().toISOString()
@@ -160,7 +161,7 @@ app.use((err, req, res, next) => {
 if (require.main === module) {
   const server = app.listen(config.port, () => {
     console.log('================================================================');
-    console.log(`  TETRASYNC TECHNOLOGIES - PRODUCTION BACKEND SERVER ACTIVE`);
+    console.log(`  PENTARYON TECHNOLOGY - PRODUCTION BACKEND SERVER ACTIVE`);
     console.log(`  Synchronizing Silicon & Code`);
     console.log('================================================================');
     console.log(`  > Main Website:     http://localhost:${config.port}`);

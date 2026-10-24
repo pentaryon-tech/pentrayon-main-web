@@ -1,7 +1,7 @@
 {
-  "name": "tetrasync-backend",
+  "name": "pentaryon-backend",
   "version": "1.0.0",
-  "description": "Production Backend for TetraSync Technologies",
+  "description": "Production Backend for Pentaryon Technology",
   "main": "server/index.js",
   "engines": {
     "node": ">=22.x"
@@ -12,13 +12,14 @@
     "test": "node tests/backend_security_test.js"
   },
   "keywords": [
+    "pentaryon",
     "tetrasync",
     "aero",
     "backend",
     "express",
     "sqlite"
   ],
-  "author": "TetraSync Technologies",
+  "author": "Pentaryon Technology",
   "license": "UNLICENSED",
   "private": true,
   "dependencies": {

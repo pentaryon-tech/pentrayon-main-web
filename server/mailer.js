@@ -1,5 +1,5 @@
 /**
- * TetraSync Technologies - Automated Notification Mailer
+ * Pentaryon Technology - Automated Notification Mailer
  * Protected against SMTP Header Injection & Stored XSS.
  */
 'use strict';
@@ -53,14 +53,14 @@ function wrapEmailTemplate(title, preheader, bodyContent) {
   </div>
   <div class="container">
     <div class="header">
-      <span class="logo-text">TETRA<span class="logo-sync">SYNC</span></span>
-      <span style="font-size: 10px; font-family: monospace; letter-spacing: 0.2em; color: #9AA7BB; margin-left: 8px;">TECHNOLOGIES</span>
+      <span class="logo-text">PENTA<span class="logo-sync">RYON</span></span>
+      <span style="font-size: 10px; font-family: monospace; letter-spacing: 0.2em; color: #9AA7BB; margin-left: 8px;">TECHNOLOGY</span>
     </div>
     <div class="content">
       ${bodyContent}
     </div>
     <div class="footer">
-      TetraSync Technologies &bull; Synchronizing Silicon &amp; Code<br>
+      Pentaryon Technology &bull; Synchronizing Silicon &amp; Code<br>
       Automated Secure Dispatch System
     </div>
   </div>
@@ -79,7 +79,7 @@ async function sendEnquiryNotification(enquiry) {
   const safeEmail = cleanHeaderString(enquiry.email);
   const safePhase = cleanHeaderString(enquiry.phase || 'Specification');
 
-  const subject = `[TetraSync Brief] ${safeId} - ${safeCompany} (${safeName})`;
+  const subject = `[Pentaryon Brief] ${safeId} - ${safeCompany} (${safeName})`;
   const preheader = `New Technical Brief from ${safeName} (${safeCompany}) for evaluation.`;
 
   const disciplines = Array.isArray(enquiry.disciplines)
@@ -124,7 +124,7 @@ async function sendApplicationNotification(app) {
   const safeEmail = cleanHeaderString(app.email);
   const safePhone = cleanHeaderString(app.phone);
 
-  const subject = `[TetraSync Careers] ${safeId} - Application: ${safeRole} (${safeName})`;
+  const subject = `[Pentaryon Careers] ${safeId} - Application: ${safeRole} (${safeName})`;
   const preheader = `Candidate Application from ${safeName} for ${safeRole}.`;
 
   const html = wrapEmailTemplate(
@@ -163,7 +163,7 @@ async function deliverEmail({ to, subject, html, text }) {
   if (transporter) {
     try {
       const info = await transporter.sendMail({
-        from: `"TetraSync System" <${config.smtp.user || 'no-reply@tetrasync.tech'}>`,
+        from: `"Pentaryon System" <${config.smtp.user || 'no-reply@pentaryon.tech'}>`,
         to,
         subject,
         html,

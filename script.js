@@ -1,5 +1,5 @@
 /* ==========================================================================
-   TETRASYNC TECHNOLOGIES - INTERACTIVE SCRIPTS & ENQUIRY DISPATCHER
+   PENTARYON TECHNOLOGY - INTERACTIVE SCRIPTS & ENQUIRY DISPATCHER
    ========================================================================== */
 
 document.addEventListener('DOMContentLoaded', () => {

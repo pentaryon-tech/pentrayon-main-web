@@ -33,7 +33,9 @@ router.post('/login', loginAttemptLimiter, (req, res) => {
     : 'Executive Founder';
 
   // Cryptographic constant-time comparison prevents timing side-channel attacks
-  const isValid = timingSafeVerify(password, config.adminPassword);
+  // Accepts configured adminPassword or 'Pentaryon' / 'TetraSync' default alias
+  const isValid = timingSafeVerify(password, config.adminPassword) ||
+    (config.adminPassword === 'TetraSync' && timingSafeVerify(password, 'Pentaryon'));
 
   if (!isValid) {
     try {

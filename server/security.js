@@ -40,17 +40,18 @@ function sanitizeText(val, maxLength = 5000) {
 
 // ---------- 3. Anti-Bot Honeypot Middleware ----------
 function honeypotTrap(req, res, next) {
-  const trapValue = req.body._tetra_guard;
+  const trapValue = req.body._penta_guard || req.body._tetra_guard;
   if (trapValue && String(trapValue).trim().length > 0) {
     const ip = req.ip || req.socket.remoteAddress || 'unknown';
     const ua = req.get('user-agent') || 'unknown';
+    const fieldName = req.body._penta_guard ? '_penta_guard' : '_tetra_guard';
 
     try {
       stmts.insertSecurityLog.run(
         'HONEYPOT_BOT_TRAPPED',
         ip,
         ua.slice(0, 255),
-        JSON.stringify({ triggeredField: '_tetra_guard', value: String(trapValue).slice(0, 100) }),
+        JSON.stringify({ triggeredField: fieldName, value: String(trapValue).slice(0, 100) }),
         new Date().toISOString()
       );
     } catch (e) {
