@@ -54,7 +54,7 @@ function request({ method = 'GET', path = '/', headers = {}, body = null }) {
 
 async function runTests() {
   console.log('\n======================================================');
-  console.log('🔒 TETRASYNC BACKEND SECURITY & INTEGRATION TEST SUITE');
+  console.log('🔒 PENTARYON BACKEND SECURITY & INTEGRATION TEST SUITE');
   console.log('======================================================\n');
 
   let passed = 0;
@@ -239,6 +239,17 @@ async function runTests() {
     const match = cookieHeader.match(/tst_admin_session=([^;]+)/);
     assert.ok(match, 'Must extract session token');
     sessionCookie = `tst_admin_session=${match[1]}`;
+  });
+
+  // 9b. Auth: Successful Login with "Pentaryon" Brand Alias
+  await test('POST /api/auth/login authenticates with "Pentaryon" brand alias', async () => {
+    const res = await request({
+      method: 'POST',
+      path: '/api/auth/login',
+      body: { password: 'Pentaryon' }
+    });
+    assert.strictEqual(res.status, 200);
+    assert.strictEqual(res.json.success, true);
   });
 
   // 10. Admin: Access Metrics with Valid Session
