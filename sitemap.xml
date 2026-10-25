@@ -6,24 +6,24 @@
 
   <!-- Primary Corporate Landing Page -->
   <url>
-    <loc>https://tetrasync-fawn.vercel.app/</loc>
-    <lastmod>2026-10-19</lastmod>
+    <loc>https://pentaryon-technology.vercel.app/</loc>
+    <lastmod>2026-10-25</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
   </url>
 
   <!-- Legal & Terms of Service -->
   <url>
-    <loc>https://tetrasync-fawn.vercel.app/terms.html</loc>
-    <lastmod>2026-10-19</lastmod>
+    <loc>https://pentaryon-technology.vercel.app/terms.html</loc>
+    <lastmod>2026-10-25</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.3</priority>
   </url>
 
   <!-- Privacy Policy -->
   <url>
-    <loc>https://tetrasync-fawn.vercel.app/privacy.html</loc>
-    <lastmod>2026-10-19</lastmod>
+    <loc>https://pentaryon-technology.vercel.app/privacy.html</loc>
+    <lastmod>2026-10-25</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.3</priority>
   </url>

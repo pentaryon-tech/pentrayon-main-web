@@ -1,5 +1,5 @@
 # Pentaryon Technology - Robots Exclusion Protocol
-# Website: https://tetrasync-fawn.vercel.app
+# Website: https://pentaryon-technology.vercel.app
 
 User-agent: *
 Allow: /
@@ -7,4 +7,4 @@ Disallow: /api/
 Disallow: /admin
 
 # Sitemap index
-Sitemap: https://tetrasync-fawn.vercel.app/sitemap.xml
+Sitemap: https://pentaryon-technology.vercel.app/sitemap.xml
